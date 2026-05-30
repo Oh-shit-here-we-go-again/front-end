@@ -20,105 +20,74 @@ import { NAV_ITEMS, SOCIAL_LINKS } from "./NavItems";
 import { AuthAvatar } from "./AuthAvatar";
 import { Icons } from "./Icons"; // você pode mover os ícones customizados para um arquivo separado
 
+import { Coins } from "lucide-react";
+
 export function Header() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
- 
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Filtra itens baseado em autenticação
   const filteredNavItems = NAV_ITEMS.filter(
     (item) => !item.authRequired || (item.authRequired && user)
   );
 
-  // Posicionamento: desktop no topo, mobile/tablet na parte inferior
-  const positionClass = "fixed bottom-4 left-1/2 -translate-x-1/2";
+  const displayName = user?.first_name 
+    ? `${user.first_name} ${user.last_name || ""}`.trim() 
+    : user?.username || "Cagão";
 
-  
-   const avatarInitials = user?.name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
   return (
-    <header className={cn(positionClass, "z-50 w-auto")}>
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/60 backdrop-blur-md border-b border-border/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-sm">
       <TooltipProvider>
-        <Dock direction="middle" className="bg-background/60 backdrop-blur-md shadow-lg">
-          {/* Links de navegação */}
+        {/* Lado Esquerdo: Logo */}
+        <Link href="/" className="flex items-center gap-2 select-none group">
+          <span className="text-2xl transition-transform group-hover:scale-110">💩</span>
+          <span className="font-black text-lg tracking-tight bg-gradient-to-r from-poop via-accent to-gold bg-clip-text text-transparent">
+            Shitgo
+          </span>
+        </Link>
+
+        {/* Lado Central: Navegação de Ícones e Menus */}
+        <nav className="flex items-center gap-1 bg-secondary/50 border border-border/80 rounded-full p-1 shadow-inner max-w-full overflow-x-auto no-scrollbar">
           {filteredNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <DockIcon key={item.label}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link
-                      href={item.href}
-                      aria-label={item.label}
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "icon" }),
-                        "size-12 rounded-full transition-colors",
-                        isActive && "bg-accent text-accent-foreground"
-                      )}
-                    >
-                      <item.icon className="size-4" />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{item.label}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </DockIcon>
+              <Link
+                key={item.label}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-extrabold transition-all duration-200 select-none whitespace-nowrap",
+                  isActive
+                    ? "bg-poop text-white shadow-sm scale-105"
+                    : "text-muted-foreground hover:text-poop hover:bg-poop/10"
+                )}
+              >
+                <item.icon className="size-3.5 shrink-0" />
+                <span>{item.label}</span>
+              </Link>
             );
           })}
+        </nav>
 
-          <Separator orientation="vertical" className="h-full" />
-
-          {/* Redes sociais (sempre visíveis) */}
-          {Object.entries(SOCIAL_LINKS).map(([name, social]) => (
-            <DockIcon key={name}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={social.url}
-                    aria-label={social.name}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-12 rounded-full"
-                    )}
-                  >
-                    <social.icon className="size-4" />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{name}</p>
-                </TooltipContent>
-              </Tooltip>
-            </DockIcon>
-          ))}
-
-          {/* Avatar do usuário logado */}
+        {/* Lado Direito: Saldo de Pontos & Perfil Dropdown */}
+        <div className="flex items-center gap-4">
           {user && (
             <>
-              <Separator orientation="vertical" className="h-full" />
-              <DockIcon>
-                {user.image ? (
-                  <img
-                    src={user.image}
-                    alt={user.name}
-                    className="size-full rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="size-full flex items-center justify-center bg-primary text-primary-foreground rounded-full">
-                    {avatarInitials}
-                  </div>
-                )}
-              </DockIcon>
+              {/* Pílula de Cocôins */}
+              <Link
+                href="/lojinha"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/80 hover:bg-secondary border border-gold/30 text-xs font-black text-foreground shadow-sm transition-all"
+              >
+                <Coins className="size-3.5 text-gold animate-pulse" />
+                <span>{user.points_balance || 0} 💩</span>
+              </Link>
+
+              {/* Perfil Dropdown/Avatar */}
+              <div className="size-10">
+                <AuthAvatar />
+              </div>
             </>
           )}
-        </Dock>
+        </div>
       </TooltipProvider>
     </header>
   );

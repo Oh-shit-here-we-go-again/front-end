@@ -4,15 +4,18 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { RainbowButton } from "@/components/ui/rainbow-button";
-import { Info, Lock, Mail, User, DollarSign, Clock } from "lucide-react";
+import { Info, Lock, Mail, User, DollarSign, Briefcase } from "lucide-react";
+
+import { getDramaticErrorMessage } from "@/lib/errors";
 
 export default function RegisterPage() {
-  const { login } = useAuth();
+  const { register } = useAuth();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [salary, setSalary] = useState("3500");
-  const [hours, setHours] = useState("44");
+  const [company, setCompany] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,23 +23,32 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    if (!name.trim() || !username.trim() || !email.trim() || !password || !salary || !company.trim()) {
+      setError("Me ajuda a te ajudar! Você mandou o formulário pela metade. Isso é o equivalente a soltar um peido e perceber que veio com 'brinde'. Um desastre anunciado. Preenche todos os campos antes que essa requisição suje a minha tela!");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Simulate account registration
-      const fakeUser = {
-        id: Math.random().toString(),
-        name,
-        email,
-        salary: Number(salary),
-        weeklyHours: Number(hours),
-        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`
+      const nameParts = name.trim().split(" ");
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(" ");
+
+      const registerData = {
+        username: username.trim().toLowerCase(),
+        first_name: firstName,
+        last_name: lastName,
+        email: email.trim(),
+        password: password,
+        monthly_salary: Number(salary),
+        company: company.trim() || "Empresa CLT",
       };
       
-      // Save user to local storage and log in
-      localStorage.setItem("user", JSON.stringify(fakeUser));
-      await login(email, password); // Log in simulator
+      await register(registerData);
       window.location.href = "/dashboard";
     } catch (err: any) {
-      setError(err.message || "Erro ao registrar. Tente novamente.");
+      setError(getDramaticErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -47,42 +59,61 @@ export default function RegisterPage() {
       <div className="text-center">
         <span className="text-5xl">💩</span>
         <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground">
-          Criar Conta no Shitgo
+          Cadastro de Merda
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Calcule e resgate seus lucros como CLT
         </p>
       </div>
 
-      <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+      <form className="mt-6 space-y-5" onSubmit={handleSubmit} noValidate>
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-xl text-xs font-bold flex items-start gap-2">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-500 p-4 rounded-xl text-xs font-bold flex items-start gap-2 w-full break-words whitespace-normal">
             <Info className="size-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
+            <span className="break-words w-full">{error}</span>
           </div>
         )}
 
         <div className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
-              Nome Completo
-            </label>
-            <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Seu nome"
-                className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
+                Nome Completo
+              </label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Seu nome"
+                  className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
+                Nome do Cagão
+              </label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="agostinho_car"
+                  className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
             </div>
           </div>
 
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
-              E-mail Corporativo
+              E-mail
             </label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -117,16 +148,16 @@ export default function RegisterPage() {
 
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
-                Horas Semanais
+                Empresa
               </label>
               <div className="relative">
-                <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input
-                  type="number"
+                  type="text"
                   required
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  placeholder="44"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Empresa"
                   className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
