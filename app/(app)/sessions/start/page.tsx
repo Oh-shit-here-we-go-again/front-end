@@ -19,8 +19,8 @@ export default function StartSessionPage() {
   const incrementRef = useRef<NodeJS.Timeout | null>(null);
 
   // Wage Math
-  const salary = user?.salary || 3500;
-  const hours = user?.weeklyHours || 44;
+  const salary = user?.monthly_salary || 3500;
+  const hours = 44; // CLT padrão
   const hourlyRate = salary / (hours * 4.33);
   const secondRate = hourlyRate / 3600;
 
