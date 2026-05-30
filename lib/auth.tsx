@@ -9,7 +9,7 @@ import { apiFetch } from "./api";
 // We adjust AuthContextType properties to match register changes if needed
 export interface CustomAuthContextType extends Omit<AuthContextType, "login"> {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   register: (data: any) => Promise<void>;
   updateUser: (updatedUser: User) => void;
 }
@@ -41,12 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setIsLoading(true);
     try {
       const data = await apiFetch("/api/auth/login/", {
         method: "POST",
-        body: JSON.stringify({ username: email, password }), // simplejwt accepts username/password
+        body: JSON.stringify({ username, password }), // simplejwt accepts username/password
       });
 
       localStorage.setItem("token", data.access);
