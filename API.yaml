@@ -1,0 +1,1809 @@
+openapi: 3.0.3
+info:
+  title: API
+  version: 1.0.0
+  description: Documentação da API
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Retorna ou atualiza os dados do usuário autenticado.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      description: Retorna ou atualiza os dados do usuário autenticado.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Cadastra um novo usuário e retorna tokens JWT.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/comments/:
+    get:
+      operationId: comments_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentList'
+          description: ''
+    post:
+      operationId: comments_create
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentRegister'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRegister'
+          description: ''
+  /api/comments/{id}/:
+    get:
+      operationId: comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Comentário.
+        required: true
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: comments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Comentário.
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentRegister'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRegister'
+          description: ''
+    patch:
+      operationId: comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Comentário.
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentRegister'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRegister'
+          description: ''
+    delete:
+      operationId: comments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Comentário.
+        required: true
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/families/:
+    get:
+      operationId: families_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - families
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFamilyList'
+          description: ''
+    post:
+      operationId: families_create
+      tags:
+      - families
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FamilyRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FamilyRegister'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyRegister'
+          description: ''
+  /api/families/{id}/:
+    get:
+      operationId: families_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Família.
+        required: true
+      tags:
+      - families
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Family'
+          description: ''
+    put:
+      operationId: families_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Família.
+        required: true
+      tags:
+      - families
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FamilyRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FamilyRegister'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyRegister'
+          description: ''
+    patch:
+      operationId: families_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Família.
+        required: true
+      tags:
+      - families
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFamilyRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFamilyRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFamilyRegister'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyRegister'
+          description: ''
+    delete:
+      operationId: families_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Família.
+        required: true
+      tags:
+      - families
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/families/{id}/members/:
+    get:
+      operationId: families_members_retrieve
+      description: Lista membros de uma família.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Família.
+        required: true
+      tags:
+      - families
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Family'
+          description: ''
+  /api/families/{id}/ranking/:
+    get:
+      operationId: families_ranking_retrieve
+      description: Ranking dos membros da família por earnings.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Família.
+        required: true
+      tags:
+      - families
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyRegister'
+          description: ''
+  /api/families/join/:
+    post:
+      operationId: families_join_create
+      description: Entra em uma família via código de convite.
+      tags:
+      - families
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyFlat'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FamilyFlat'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FamilyFlat'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Family'
+          description: ''
+  /api/feed/:
+    get:
+      operationId: feed_list
+      description: Feed público — todas as sessões finalizadas com foto.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - feed
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBathroomSessionList'
+          description: ''
+  /api/feed/{id}/:
+    get:
+      operationId: feed_retrieve
+      description: Feed público — todas as sessões finalizadas com foto.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Sessão no banheiro.
+        required: true
+      tags:
+      - feed
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BathroomSession'
+          description: ''
+  /api/likes/toggle/:
+    post:
+      operationId: likes_toggle_create
+      description: Curte uma sessão. Idempotente — não falha se já curtiu.
+      tags:
+      - likes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Like'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Like'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Like'
+          description: ''
+  /api/points/:
+    get:
+      operationId: points_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - points
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPointTransactionList'
+          description: ''
+  /api/points/{id}/:
+    get:
+      operationId: points_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - points
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointTransaction'
+          description: ''
+  /api/ranking/:
+    get:
+      operationId: ranking_list
+      parameters:
+      - in: query
+        name: month
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      - in: query
+        name: year
+        schema:
+          type: integer
+      tags:
+      - ranking
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRankingSnapshotList'
+          description: ''
+  /api/ranking/{id}/:
+    get:
+      operationId: ranking_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Snapshot de ranking.
+        required: true
+      tags:
+      - ranking
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankingSnapshot'
+          description: ''
+  /api/ranking/global_ranking/:
+    get:
+      operationId: ranking_global_ranking_retrieve
+      description: Ranking global — todos os usuários ordenados por earnings.
+      tags:
+      - ranking
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankingSnapshot'
+          description: ''
+  /api/ranking/monthly/:
+    get:
+      operationId: ranking_monthly_retrieve
+      description: Ranking mensal — snapshots do mês/ano informados.
+      tags:
+      - ranking
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankingSnapshot'
+          description: ''
+  /api/reviews/:
+    get:
+      operationId: reviews_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - reviews
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReviewList'
+          description: ''
+  /api/reviews/{id}/:
+    get:
+      operationId: reviews_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Review (Sommelier de Coco).
+        required: true
+      tags:
+      - reviews
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+  /api/sessions/:
+    get:
+      operationId: sessions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBathroomSessionList'
+          description: ''
+  /api/sessions/{id}/:
+    get:
+      operationId: sessions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BathroomSession'
+          description: ''
+  /api/sessions/{id}/stop/:
+    post:
+      operationId: sessions_stop_create
+      description: Encerra a sessão. Foto obrigatória. Calcula duração e earnings.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BathroomSessionStop'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BathroomSessionStop'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BathroomSessionStop'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BathroomSession'
+          description: ''
+  /api/sessions/start/:
+    post:
+      operationId: sessions_start_create
+      description: Inicia uma nova sessão no banheiro.
+      tags:
+      - sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BathroomSession'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BathroomSession'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BathroomSession'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BathroomSession'
+          description: ''
+  /api/store/orders/:
+    get:
+      operationId: store_orders_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+  /api/store/orders/{id}/:
+    get:
+      operationId: store_orders_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/store/orders/checkout/:
+    post:
+      operationId: store_orders_checkout_create
+      description: 'Realiza o checkout: cria pedido, debita pontos e reserva estoque.'
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderRegister'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/store/products/:
+    get:
+      operationId: store_products_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Um número de página dentro do conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductFlatList'
+          description: ''
+  /api/store/products/{id}/:
+    get:
+      operationId: store_products_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Um string UUID que identifica este Produto.
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+components:
+  schemas:
+    BathroomSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: string
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          title: Início
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Fim
+        duration_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+          title: Duração (s)
+        earnings:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Ganhos (R$)
+        photo_url:
+          type: string
+          format: uri
+          title: Foto URL
+          maxLength: 200
+        is_active:
+          type: boolean
+          readOnly: true
+        like_count:
+          type: string
+          readOnly: true
+        comment_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - comment_count
+      - created_at
+      - id
+      - is_active
+      - like_count
+      - user
+    BathroomSessionStop:
+      type: object
+      properties:
+        photo_url:
+          type: string
+          format: uri
+      required:
+      - photo_url
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        session:
+          type: string
+          format: uuid
+          title: Sessão
+        author:
+          type: string
+          readOnly: true
+        text:
+          type: string
+          title: Comentário
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - author
+      - created_at
+      - id
+      - session
+      - text
+    CommentRegister:
+      type: object
+      properties:
+        text:
+          type: string
+          title: Comentário
+      required:
+      - text
+    Family:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nome
+          maxLength: 255
+        invite_code:
+          type: string
+          readOnly: true
+          title: Código de convite
+        owner:
+          type: string
+          readOnly: true
+        member_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - invite_code
+      - member_count
+      - name
+      - owner
+    FamilyFlat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nome
+          maxLength: 255
+        invite_code:
+          type: string
+          readOnly: true
+          title: Código de convite
+      required:
+      - id
+      - invite_code
+      - name
+    FamilyRegister:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Nome
+          maxLength: 255
+      required:
+      - name
+    Like:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        session:
+          type: string
+          format: uuid
+          title: Sessão
+        user:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - session
+      - user
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        total_points:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Total em pontos
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - items
+      - total_points
+      - user
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        product:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Quantidade
+        points_at_purchase:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Preço no momento da compra
+      required:
+      - id
+      - points_at_purchase
+      - product
+    OrderItemRegister:
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+      required:
+      - product_id
+    OrderRegister:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemRegister'
+      required:
+      - items
+    OrderStatusEnum:
+      enum:
+      - pending
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pendente
+        * `completed` - Concluído
+        * `cancelled` - Cancelado
+    PaginatedBathroomSessionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BathroomSession'
+    PaginatedCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedFamilyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Family'
+    PaginatedOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PaginatedPointTransactionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PointTransaction'
+    PaginatedProductFlatList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFlat'
+    PaginatedRankingSnapshotList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankingSnapshot'
+    PaginatedReviewList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+    PatchedCommentRegister:
+      type: object
+      properties:
+        text:
+          type: string
+          title: Comentário
+    PatchedFamilyRegister:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Nome
+          maxLength: 255
+    PatchedUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: E-mail
+          maxLength: 254
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        company:
+          type: string
+          title: Empresa
+          maxLength: 255
+        hourly_salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Salário/hora (R$)
+        avatar_url:
+          type: string
+          format: uri
+          maxLength: 200
+        family:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+    PointTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: string
+          format: uuid
+          title: Usuário
+        points_delta:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Delta de pontos
+        reason:
+          allOf:
+          - $ref: '#/components/schemas/ReasonEnum'
+          title: Motivo
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - points_delta
+      - reason
+      - user
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nome
+          maxLength: 255
+        description:
+          type: string
+          title: Descrição
+        price_points:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Preço em pontos
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Estoque
+        image_url:
+          type: string
+          format: uri
+          title: Imagem URL
+          maxLength: 200
+        is_active:
+          type: boolean
+          title: Ativo
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - name
+      - price_points
+    ProductFlat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nome
+          maxLength: 255
+        price_points:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Preço em pontos
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Estoque
+        image_url:
+          type: string
+          format: uri
+          title: Imagem URL
+          maxLength: 200
+      required:
+      - id
+      - name
+      - price_points
+    RankingSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: string
+          readOnly: true
+        month:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Mês
+        year:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Ano
+        total_earnings:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: Total ganho (R$)
+        total_sessions:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Total de sessões
+        rank_position:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Posição no ranking
+        points:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Pontos acumulados
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - month
+      - rank_position
+      - user
+      - year
+    ReasonEnum:
+      enum:
+      - session
+      - ranking_bonus
+      - store_purchase
+      type: string
+      description: |-
+        * `session` - Sessão concluída
+        * `ranking_bonus` - Bônus de ranking
+        * `store_purchase` - Compra na lojinha
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        session:
+          type: string
+          format: uuid
+          title: Sessão
+        status:
+          $ref: '#/components/schemas/ReviewStatusEnum'
+        rating:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          title: Nota (1–5)
+        ai_text:
+          type: string
+          title: Avaliação da IA
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - id
+      - session
+    ReviewStatusEnum:
+      enum:
+      - pending
+      - completed
+      - failed
+      type: string
+      description: |-
+        * `pending` - Aguardando
+        * `completed` - Concluída
+        * `failed` - Falhou
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: E-mail
+          maxLength: 254
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        company:
+          type: string
+          title: Empresa
+          maxLength: 255
+        hourly_salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Salário/hora (R$)
+        avatar_url:
+          type: string
+          format: uri
+          maxLength: 200
+        family:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Criado em
+      required:
+      - created_at
+      - email
+      - family
+      - id
+      - username
+    UserRegister:
+      type: object
+      properties:
+        username:
+          type: string
+          title: Usuário
+          description: Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_
+            apenas.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: E-mail
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        first_name:
+          type: string
+          title: Primeiro nome
+          maxLength: 150
+        last_name:
+          type: string
+          title: Último nome
+          maxLength: 150
+        company:
+          type: string
+          title: Empresa
+          maxLength: 255
+        hourly_salary:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          title: Salário/hora (R$)
+      required:
+      - email
+      - password
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
