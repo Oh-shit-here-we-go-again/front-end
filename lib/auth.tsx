@@ -26,6 +26,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return { user: action.payload, isAuthenticated: true, isLoading: false };
     case "LOGIN_FAILURE":
       return { ...state, isLoading: false };
+    case "UPDATE_USER":
+      return { ...state, user: action.payload };
     case "LOGOUT":
       return { user: null, isAuthenticated: false, isLoading: false };
     default:
@@ -39,6 +41,8 @@ const AuthContext = createContext<{
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (user: User) => void;
+  register: (registerData: any) => Promise<void>;
 } | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -82,6 +86,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "LOGOUT" });
     window.location.href = "/login";
   };
+  const updateUser = (user: User) => {
+    dispatch({ type: "UPDATE_USER", payload: user });
+  };
+  const register = async (registerData: any) => {
+    dispatch({ type: "LOGIN_START" });
+    try {
+      const response = await api.post<{ access?: string; refresh?: string }>(
+        "/auth/register/",
+        registerData,
+        { requiresAuth: false }
+      );
+      let access = response.access;
+      if (access) {
+        setTokenCookie(access);
+      } else {
+        const loginRes = await api.post<{ access: string }>(
+          "/auth/login/",
+          { email: registerData.email, password: registerData.password },
+          { requiresAuth: false }
+        );
+        access = loginRes.access;
+        setTokenCookie(access);
+      }
+      const user = await api.get<User>("/auth/me/");
+      dispatch({ type: "LOGIN_SUCCESS", payload: user });
+    } catch (error) {
+      dispatch({ type: "LOGIN_FAILURE" });
+      throw error;
+    }
+  };
   return (
     <AuthContext.Provider
       value={{
@@ -90,6 +124,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading: state.isLoading,
         login,
         logout,
+        updateUser,
+        register,
       }}
     >
       {children}

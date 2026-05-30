@@ -8,4 +8,12 @@ export type User = {
   // Optional fields used by dashboard calculations
   salary?: number;
   weeklyHours?: number;
+
+  // Profile and api compatibility fields
+  first_name?: string;
+  last_name?: string;
+  company?: string;
+  monthly_salary?: number;
+  avatar_url?: string;
+  points_balance?: number;
 };

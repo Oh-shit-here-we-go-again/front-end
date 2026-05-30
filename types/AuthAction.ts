@@ -6,6 +6,7 @@ export type AuthAction =
   | { type: "LOGIN_START" }
   | { type: "LOGIN_SUCCESS"; payload: User }
   | { type: "LOGIN_FAILURE" }
+  | { type: "UPDATE_USER"; payload: User }
   | { type: "LOGOUT" };
 
 export const initialState: AuthState = {
