@@ -50,7 +50,7 @@ function getEmojiForProduct(name: string): string {
 export const shopService = {
   async fetchShopItems(): Promise<ShopItem[]> {
     try {
-      const data = await apiFetch("/api/store/products/");
+      const data = await apiFetch("/api/store/products/") as any;
       const items = Array.isArray(data) ? data : data?.results || [];
       
       if (items.length === 0) {
@@ -104,7 +104,7 @@ export const shopService = {
             }
           ]
         })
-      });
+      }) as any;
 
       return {
         success: true,

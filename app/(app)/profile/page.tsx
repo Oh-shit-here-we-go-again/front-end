@@ -5,7 +5,8 @@ import { useAuth } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShineBorder } from "@/components/ui/shine-border";
-import { User, DollarSign, Briefcase, Image, LogOut, CheckCircle, Info } from "lucide-react";
+import { User as UserIcon, DollarSign, Briefcase, Image, LogOut, CheckCircle, Info } from "lucide-react";
+import { User } from "@/types/User";
 
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
@@ -36,7 +37,7 @@ export default function ProfilePage() {
           monthly_salary: Number(salary),
           avatar_url: avatarUrl,
         }),
-      });
+      }) as User;
 
       updateUser(updatedData);
       setSuccess(true);
@@ -106,7 +107,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">Primeiro Nome</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input
                   type="text"
                   value={firstName}
@@ -119,7 +120,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">Sobrenome</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <input
                   type="text"
                   value={lastName}

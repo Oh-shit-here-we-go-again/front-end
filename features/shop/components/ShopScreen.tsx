@@ -7,6 +7,7 @@ import { shopService } from "../services/shopService";
 import { ShopItem } from "../types/shop.types";
 import { useAuth } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
+import { User } from "@/types/User";
 
 export function ShopScreen() {
   const { user, updateUser } = useAuth();
@@ -48,7 +49,7 @@ export function ShopScreen() {
       setUserCoins(result.newCoins);
       // Fetch latest user details from API to sync header points balance
       try {
-        const updatedData = await apiFetch("/api/auth/me/");
+        const updatedData = await apiFetch("/api/auth/me/") as User;
         updateUser(updatedData);
       } catch (e) {
         console.error("Erro ao sincronizar saldo de ShitCoins:", e);

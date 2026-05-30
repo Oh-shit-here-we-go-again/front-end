@@ -10,7 +10,7 @@ import {
   getTokenFromCookie,
   removeTokenCookie,
   setTokenCookie,
-} from "./api-client";
+} from "./api";
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
@@ -65,12 +65,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     restoreUser();
   }, []);
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     dispatch({ type: "LOGIN_START" });
     try {
       const { access } = await api.post<{ access: string; refresh: string }>(
         "/auth/login/",
-        { email, password },
+        { username, password },
         { requiresAuth: false },
       );
       setTokenCookie(access);
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         const loginRes = await api.post<{ access: string }>(
           "/auth/login/",
-          { email: registerData.email, password: registerData.password },
+          { username: registerData.username, password: registerData.password },
           { requiresAuth: false }
         );
         access = loginRes.access;

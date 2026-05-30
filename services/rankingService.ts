@@ -1,4 +1,4 @@
-import { api } from "@/lib/api-client";
+import { api } from "@/lib/api";
 import { RankingSnapshot } from "@/types/api";
 
 export const rankingService = {

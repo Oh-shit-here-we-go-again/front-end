@@ -1,9 +1,11 @@
 // lib/api.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://psephological-trigonally-gaynelle.ngrok-free.dev/api";
 
-interface RequestOptions extends RequestInit {
+export type RequestOptions = RequestInit & {
+  requiresAuth?: boolean;
   params?: Record<string, string>;
-}
+};
 
 export class ApiError extends Error {
   status: number;
@@ -17,9 +19,33 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
-  const { params, headers, ...restOptions } = options;
-  
+// Cookie helpers for client-side token storage
+export function getTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(^| )auth_token=([^;]+)/);
+  return match ? match[2] : null;
+}
+
+export function setTokenCookie(token: string, expiresDays = 7) {
+  if (typeof document === "undefined") return;
+  const date = new Date();
+  date.setTime(date.getTime() + expiresDays * 24 * 60 * 60 * 1000);
+  document.cookie = `auth_token=${token}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+}
+
+export function removeTokenCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie =
+    "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+
+// Unified API request runner
+async function request<T>(
+  endpoint: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const { requiresAuth = true, params, headers, ...fetchOptions } = options;
+
   let url = `${API_BASE_URL}${endpoint}`;
   if (params) {
     const searchParams = new URLSearchParams(params);
@@ -29,38 +55,63 @@ export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
   const defaultHeaders: Record<string, string> = {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
+    ...headers as Record<string, string> | undefined,
   };
 
-  // Attach token if present
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
+  if (requiresAuth) {
+    const token = getTokenFromCookie();
     if (token) {
       defaultHeaders["Authorization"] = `Bearer ${token}`;
     }
   }
 
-  const response = await fetch(url, {
-    headers: {
-      ...defaultHeaders,
-      ...headers,
-    },
-    ...restOptions,
+  const res = await fetch(url, {
+    ...fetchOptions,
+    headers: defaultHeaders,
   });
 
-  if (!response.ok) {
+  if (!res.ok) {
     let errorData;
     try {
-      errorData = await response.json();
+      errorData = await res.json();
     } catch {
-      errorData = { message: "Erro catastrófico no servidor." };
+      errorData = { message: `API error ${res.status}` };
     }
-    
-    throw new ApiError(response.status, errorData);
+    throw new ApiError(res.status, errorData);
   }
 
-  if (response.status === 204) {
-    return null;
+  if (res.status === 204) {
+    return null as unknown as T;
   }
 
-  return response.json();
+  return res.json();
 }
+
+// Standard fetch wrapper (matches the signature of the old lib/api.ts apiFetch)
+export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
+  const isAuthEndpoint = endpoint.includes("/auth/login/") || endpoint.includes("/auth/register/");
+  return request(endpoint, {
+    requiresAuth: !isAuthEndpoint,
+    ...options,
+  });
+}
+
+// Object-based API wrapper (matches the signature of the old lib/api-client.ts api wrapper)
+export const api = {
+  get: <T>(endpoint: string, opts?: RequestOptions) =>
+    request<T>(endpoint, { ...opts, method: "GET" }),
+  post: <T>(endpoint: string, body: unknown, opts?: RequestOptions) =>
+    request<T>(endpoint, {
+      ...opts,
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  patch: <T>(endpoint: string, body: unknown, opts?: RequestOptions) =>
+    request<T>(endpoint, {
+      ...opts,
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  delete: <T>(endpoint: string, opts?: RequestOptions) =>
+    request<T>(endpoint, { ...opts, method: "DELETE" }),
+};
