@@ -31,12 +31,12 @@ export function Header() {
     (item) => !item.authRequired || (item.authRequired && user)
   );
 
-  // Posicionamento: sempre fixado na parte inferior
+  // Posicionamento: desktop no topo, mobile/tablet na parte inferior
   const positionClass = "fixed bottom-4 left-1/2 -translate-x-1/2";
 
   
    const avatarInitials = user?.name
-    .split(" ")
+    ?.split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()

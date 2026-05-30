@@ -1,31 +1,16 @@
+import React, { useEffect } from "react";
 import { cn } from "@/lib/utils";
-
-import { Geist, Geist_Mono, Inter, Lexend, Atkinson_Hyperlegible } from "next/font/google";
+import { Inter, Lexend, Atkinson_Hyperlegible, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { Header } from "@/components/header/Header";
+import { usePathname, useRouter } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const lexend = Lexend({
-  subsets: ["latin"],
-  variable: "--font-lexend",
-});
-
-const atkinson = Atkinson_Hyperlegible({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-  variable: "--font-atkinson",
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const lexend = Lexend({ subsets: ["latin"], variable: "--font-lexend" });
+const atkinson = Atkinson_Hyperlegible({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-atkinson" });
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata = {
   title: "Shit Go",
@@ -34,9 +19,18 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (pathname === "/") {
+      router.replace("/dashboard");
+    }
+  }, [pathname, router]);
+
+  const showHeader = !pathname.startsWith("/login") && !pathname.startsWith("/register");
+
   return (
     <html
       lang="pt-BR"
@@ -53,6 +47,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
+          {showHeader && <Header />}
           {children}
         </AuthProvider>
       </body>
