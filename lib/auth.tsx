@@ -1,45 +1,104 @@
 // lib/auth.ts
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { AuthContextType } from "../types/AuthContextType";
+import { createContext, useContext, useEffect, useReducer } from "react";
+import { AuthAction, initialState } from "../types/AuthAction";
+import { AuthState } from "../types/AuthState";
 import { User } from "../types/User";
+import {
+  api,
+  getTokenFromCookie,
+  removeTokenCookie,
+  setTokenCookie,
+} from "./api-client";
 
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case "RESTORE_STATE":
+      return {
+        user: action.payload,
+        isAuthenticated: !!action.payload,
+        isLoading: false,
+      };
+    case "LOGIN_START":
+      return { ...state, isLoading: true };
+    case "LOGIN_SUCCESS":
+      return { user: action.payload, isAuthenticated: true, isLoading: false };
+    case "LOGIN_FAILURE":
+      return { ...state, isLoading: false };
+    case "LOGOUT":
+      return { user: null, isAuthenticated: false, isLoading: false };
+    default:
+      return state;
+  }
+}
 
-
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<{
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+} | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
-    // Recupera sessão do localStorage (apenas exemplo)
-    const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
+    const restoreUser = async () => {
+      const token = getTokenFromCookie();
+      if (!token) {
+        dispatch({ type: "RESTORE_STATE", payload: null });
+        return;
+      }
+      try {
+        const user = await api.get<User>("/auth/me/");
+        dispatch({ type: "RESTORE_STATE", payload: user });
+      } catch {
+        removeTokenCookie();
+        dispatch({ type: "RESTORE_STATE", payload: null });
+      }
+    };
+    restoreUser();
   }, []);
-
   const login = async (email: string, password: string) => {
-    // Simular chamada API
-    const fakeUser = { name: "João Silva", email, avatar: "/avatar.png", id: "1" };
-    setUser(fakeUser);
-    localStorage.setItem("user", JSON.stringify(fakeUser));
+    dispatch({ type: "LOGIN_START" });
+    try {
+      const { access } = await api.post<{ access: string; refresh: string }>(
+        "/auth/login/",
+        { email, password },
+        { requiresAuth: false },
+      );
+      setTokenCookie(access);
+      const user = await api.get<User>("/auth/me/");
+      dispatch({ type: "LOGIN_SUCCESS", payload: user });
+    } catch (error) {
+      dispatch({ type: "LOGIN_FAILURE" });
+      throw error;
+    }
   };
-
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+    removeTokenCookie();
+    dispatch({ type: "LOGOUT" });
+    window.location.href = "/login";
   };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, isLoading: false }}>
+    <AuthContext.Provider
+      value={{
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        isLoading: state.isLoading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }
