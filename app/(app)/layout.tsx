@@ -3,16 +3,10 @@
 import React from "react";
 import { Header } from "@/components/header/header";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <main className="flex-1 pt-20 pb-10">
-        {children}
-      </main>
+      <main className="min-h-screen bg-background pb-20">{children}</main>
       <Header />
     </>
   );

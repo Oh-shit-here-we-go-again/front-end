@@ -1,105 +1,95 @@
 // lib/auth.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { AuthContextType } from "../types/AuthContextType";
+import { createContext, useContext, useEffect, useReducer } from "react";
+import { AuthAction, initialState } from "../types/AuthAction";
+import { AuthState } from "../types/AuthState";
 import { User } from "../types/User";
-import { apiFetch } from "./api";
+import {
+  api,
+  getTokenFromCookie,
+  removeTokenCookie,
+  setTokenCookie,
+} from "./api-client";
 
-// We adjust AuthContextType properties to match register changes if needed
-export interface CustomAuthContextType extends Omit<AuthContextType, "login"> {
-  user: User | null;
-  login: (username: string, password: string) => Promise<void>;
-  register: (data: any) => Promise<void>;
-  updateUser: (updatedUser: User) => void;
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case "RESTORE_STATE":
+      return {
+        user: action.payload,
+        isAuthenticated: !!action.payload,
+        isLoading: false,
+      };
+    case "LOGIN_START":
+      return { ...state, isLoading: true };
+    case "LOGIN_SUCCESS":
+      return { user: action.payload, isAuthenticated: true, isLoading: false };
+    case "LOGIN_FAILURE":
+      return { ...state, isLoading: false };
+    case "LOGOUT":
+      return { user: null, isAuthenticated: false, isLoading: false };
+    default:
+      return state;
+  }
 }
 
-const AuthContext = createContext<CustomAuthContextType | undefined>(undefined);
+const AuthContext = createContext<{
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+} | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchCurrentUser = async () => {
-    try {
-      const userData = await apiFetch("/api/auth/me/");
-      setUser(userData);
-    } catch (err) {
-      console.error("Falha ao buscar usuário atual:", err);
-      logout();
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetchCurrentUser();
-    } else {
-      setIsLoading(false);
-    }
+    const restoreUser = async () => {
+      const token = getTokenFromCookie();
+      if (!token) {
+        dispatch({ type: "RESTORE_STATE", payload: null });
+        return;
+      }
+      try {
+        const user = await api.get<User>("/auth/me/");
+        dispatch({ type: "RESTORE_STATE", payload: user });
+      } catch {
+        removeTokenCookie();
+        dispatch({ type: "RESTORE_STATE", payload: null });
+      }
+    };
+    restoreUser();
   }, []);
-
-  const login = async (username: string, password: string) => {
-    setIsLoading(true);
+  const login = async (email: string, password: string) => {
+    dispatch({ type: "LOGIN_START" });
     try {
-      const data = await apiFetch("/api/auth/login/", {
-        method: "POST",
-        body: JSON.stringify({ username, password }), // simplejwt accepts username/password
-      });
-
-      localStorage.setItem("token", data.access);
-      localStorage.setItem("refresh", data.refresh);
-      
-      // Fetch details of authenticated user
-      await fetchCurrentUser();
-    } catch (err) {
-      setIsLoading(false);
-      throw err;
+      const { access } = await api.post<{ access: string; refresh: string }>(
+        "/auth/login/",
+        { email, password },
+        { requiresAuth: false },
+      );
+      setTokenCookie(access);
+      const user = await api.get<User>("/auth/me/");
+      dispatch({ type: "LOGIN_SUCCESS", payload: user });
+    } catch (error) {
+      dispatch({ type: "LOGIN_FAILURE" });
+      throw error;
     }
   };
-
-  const register = async (registerData: any) => {
-    setIsLoading(true);
-    try {
-      const data = await apiFetch("/api/auth/register/", {
-        method: "POST",
-        body: JSON.stringify(registerData),
-      });
-
-      localStorage.setItem("token", data.access);
-      localStorage.setItem("refresh", data.refresh);
-      setUser(data.user);
-    } catch (err) {
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("user");
-    window.location.href = "/login?descarga=true";
+    removeTokenCookie();
+    dispatch({ type: "LOGOUT" });
+    window.location.href = "/login";
   };
-
-  const updateUser = (updatedUser: User) => {
-    setUser(updatedUser);
-  };
-
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        isLoading: state.isLoading,
         login,
         logout,
-        register,
-        updateUser,
-        isAuthenticated: !!user,
-        isLoading,
       }}
     >
       {children}
@@ -108,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }
