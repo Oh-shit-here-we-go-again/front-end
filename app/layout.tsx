@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+
+import { AuthProvider } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { Inter, Lexend, Atkinson_Hyperlegible, Geist, Geist_Mono } from "next/font/google";
+import { Atkinson_Hyperlegible, Geist, Geist_Mono, Inter, Lexend } from "next/font/google";
 import "./globals.css";
-import { AuthProvider, useAuth } from "@/lib/auth";
-import { Header } from "@/components/header/Header";
-import { usePathname, useRouter } from "next/navigation";
+
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const lexend = Lexend({ subsets: ["latin"], variable: "--font-lexend" });
@@ -19,18 +18,9 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (pathname === "/") {
-      router.replace("/dashboard");
-    }
-  }, [pathname, router]);
-
-  const showHeader = !pathname.startsWith("/login") && !pathname.startsWith("/register");
-
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="pt-BR"
@@ -46,10 +36,9 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          {showHeader && <Header />}
-          {children}
-        </AuthProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
       </body>
     </html>
   );
