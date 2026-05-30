@@ -46,17 +46,29 @@ async function request<T>(
 ): Promise<T> {
   const { requiresAuth = true, params, headers, ...fetchOptions } = options;
 
-  let url = `${API_BASE_URL}${endpoint}`;
+  let cleanEndpoint = endpoint;
+  if (API_BASE_URL.endsWith("/api") && cleanEndpoint.startsWith("/api/")) {
+    cleanEndpoint = cleanEndpoint.substring(4);
+  } else if (API_BASE_URL.endsWith("/api/") && cleanEndpoint.startsWith("/api/")) {
+    cleanEndpoint = cleanEndpoint.substring(5);
+  }
+
+  let url = `${API_BASE_URL}${cleanEndpoint}`;
   if (params) {
     const searchParams = new URLSearchParams(params);
     url += `?${searchParams.toString()}`;
   }
 
   const defaultHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
     ...headers as Record<string, string> | undefined,
   };
+
+  if (fetchOptions.body && !(fetchOptions.body instanceof FormData)) {
+    defaultHeaders["Content-Type"] = "application/json";
+  } else if (!fetchOptions.body) {
+    defaultHeaders["Content-Type"] = "application/json";
+  }
 
   if (requiresAuth) {
     const token = getTokenFromCookie();

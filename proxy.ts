@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const AUTH_ROUTES = ['/login', '/register']
-const PROTECTED_ROUTES = ['/trono', '/ranking', '/store', '/feed', '/profile', '/family']
+const PROTECTED_ROUTES = ['/dashboard', '/ranking', '/lojinha', '/feed', '/profile', '/family']
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value
@@ -20,7 +20,7 @@ export function proxy(request: NextRequest) {
 
   // Se está logado e tenta acessar login/register → redireciona para o trono
   if (isAuthRoute && token) {
-    const url = new URL('/trono', request.url)
+    const url = new URL('/dashboard', request.url)
     return NextResponse.redirect(url)
   }
 

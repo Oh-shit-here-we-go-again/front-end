@@ -21,7 +21,7 @@ export function WeeklyChampionship() {
           🏆 Campeonato Semanal 🏆
         </h2>
         <p className="text-muted-foreground font-medium max-w-xl mx-auto">
-          Toda semana, os 5 profissionais que mais cagarem ganham ShitCoins para gastar na lojinha. 
+          Toda semana, os 5 profissionais que mais cagarem ganham Cocoins para gastar na lojinha. 
           O topo do ranking leva 500 moedas — e muito respeito na comunidade.
         </p>
       </div>
