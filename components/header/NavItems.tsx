@@ -1,12 +1,10 @@
 // components/header/NavItems.ts
-import { HomeIcon, PencilIcon, MailIcon, LayoutDashboardIcon } from "lucide-react";
+import { HomeIcon, LayoutDashboardIcon, MessageSquareShare, Trophy, ShoppingBag } from "lucide-react";
 import { Icons } from "./Icons";
 
 export const NAV_ITEMS = [
-  { href: "/", icon: HomeIcon, label: "Home", authRequired: false },
-  { href: "/blog", icon: PencilIcon, label: "Blog", authRequired: false },
-  { href: "/dashboard", icon: LayoutDashboardIcon, label: "Dashboard", authRequired: true },
-  { href: "/contact", icon: MailIcon, label: "Contato", authRequired: false },
+  { href: "/dashboard", icon: LayoutDashboardIcon, label: "Estatísticas de Merda", authRequired: true },
+  { href: "/lojinha", icon: ShoppingBag, label: "ShoPum", authRequired: true },
 ];
 
 // Você pode manter seus ícones customizados (LinkedIn, X, GitHub) em um arquivo separado

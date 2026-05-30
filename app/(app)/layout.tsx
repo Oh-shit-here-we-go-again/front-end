@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Header } from "@/components/header/Header";
+import { Header } from "@/components/header/header";
 
 export default function AppLayout({
   children,
@@ -10,7 +10,7 @@ export default function AppLayout({
 }) {
   return (
     <>
-      <main className="flex-1 pb-24">
+      <main className="flex-1 pt-20 pb-10">
         {children}
       </main>
       <Header />
