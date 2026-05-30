@@ -1,7 +1,6 @@
 // lib/api-client.ts
 const API_BASE_URL =
-  process.env.NEXT_API_URL ||
-  "https://psephological-trigonally-gaynelle.ngrok-free.app/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://psephological-trigonally-gaynelle.ngrok-free.dev";
 
 type RequestOptions = RequestInit & {
   requiresAuth?: boolean;
@@ -15,6 +14,7 @@ async function request<T>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
     ...(fetchOptions.headers as Record<string, string> | undefined),
   };
 

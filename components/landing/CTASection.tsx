@@ -2,6 +2,7 @@
 "use client";
 
 import { RainbowButton } from "@/components/ui/rainbow-button";
+import Link from "next/link";
 
 export function CTASection() {
   return (
@@ -16,9 +17,11 @@ export function CTASection() {
           Mais de 5.000 CLTs já estão faturando com o ShitGo. Crie sua conta gratuita 
           e comece a contar seus minutos de lucro hoje mesmo.
         </p>
-        <RainbowButton className="shadow-lg transform active:scale-95 transition-transform font-bold text-base h-12 px-8 rounded-xl cursor-pointer">
-          Cadastrar agora 💩
-        </RainbowButton>
+        <Link href="/register">
+          <RainbowButton className="shadow-lg transform active:scale-95 transition-transform font-bold text-base h-12 px-8 rounded-xl cursor-pointer">
+            Cadastrar agora 💩
+          </RainbowButton>
+        </Link>
         <p className="text-xs text-muted-foreground mt-6">
           * Não vendemos dados intestinais. Prometimos.
         </p>

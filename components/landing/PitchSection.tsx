@@ -4,6 +4,7 @@
 import { motion } from "motion/react";
 import { Sparkles, Coins, Trophy } from "lucide-react";
 import { RainbowButton } from "@/components/ui/rainbow-button";
+import Link from "next/link";
 
 export function PitchSection() {
   return (
@@ -47,9 +48,11 @@ export function PitchSection() {
         transition={{ delay: 0.3 }}
         className="flex flex-wrap justify-center gap-4"
       >
-        <RainbowButton className="shadow-lg transform active:scale-95 transition-transform font-bold text-base h-12 px-8 rounded-xl cursor-pointer">
-          Quero faturar no vaso 💩
-        </RainbowButton>
+        <Link href="/register">
+          <RainbowButton className="shadow-lg transform active:scale-95 transition-transform font-bold text-base h-12 px-8 rounded-xl cursor-pointer">
+            Quero faturar no vaso 💩
+          </RainbowButton>
+        </Link>
         <a
           href="#como-funciona"
           className="inline-flex items-center gap-2 border border-border bg-card hover:bg-muted text-foreground font-bold px-6 py-3 rounded-xl transition-all shadow-sm"

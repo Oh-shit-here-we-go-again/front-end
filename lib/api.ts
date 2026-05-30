@@ -28,6 +28,7 @@ export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
 
   const defaultHeaders: Record<string, string> = {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   };
 
   // Attach token if present

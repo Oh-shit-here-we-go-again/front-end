@@ -4,16 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import {
   Coins,
-  Sparkles,
-  Users,
   Accessibility,
-  TrendingUp,
   Clock,
-  ArrowRight,
   Info,
-  Play,
-  Square,
-  CheckCircle,
 } from "lucide-react";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShineBorder } from "@/components/ui/shine-border";
@@ -22,11 +15,9 @@ import { ScrollVelocityContainer, ScrollVelocityRow } from "@/components/ui/scro
 import { cn } from "@/lib/utils";
 
 // Landing components
+import { Header } from "@/components/header/header";
 import { PitchSection } from "@/components/landing/PitchSection";
 import { StorySection } from "@/components/landing/StorySection";
-import { FeedPreview } from "@/components/landing/FeedPreview";
-import { StorePreview } from "@/components/landing/StorePreview";
-import { WeeklyChampionship } from "@/components/landing/WeeklyChampionship";
 import { CTASection } from "@/components/landing/CTASection";
 
 // Interface for falling poop particles
@@ -53,61 +44,9 @@ export default function Home() {
   const [particles, setParticles] = useState<PoopParticle[]>([]);
   const particleIdCounter = useRef<number>(0);
 
-  // Simulated Global Poop Stats
-  const [globalEarnings, setGlobalEarnings] = useState<number>(1524823.40);
-  const [globalPoops, setGlobalPoops] = useState<number>(348230);
 
-  // Session timer state
-  const [sessionActive, setSessionActive] = useState(false);
-  const [sessionPaused, setSessionPaused] = useState(true);
-  const [sessionTime, setSessionTime] = useState(0);
-  const [sessionFinished, setSessionFinished] = useState(false);
-  const [savedSessionEarnings, setSavedSessionEarnings] = useState(0);
-  const sessionRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update global live stats
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGlobalEarnings((prev) => prev + Math.random() * 4.5);
-      setGlobalPoops((prev) => prev + (Math.random() > 0.4 ? 1 : 0));
-    }, 1500);
-    return () => clearInterval(interval);
-  }, []);
 
-  // Session timer effect
-  useEffect(() => {
-    if (sessionActive && !sessionPaused) {
-      sessionRef.current = setInterval(() => {
-        setSessionTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (sessionRef.current) clearInterval(sessionRef.current);
-    }
-    return () => {
-      if (sessionRef.current) clearInterval(sessionRef.current);
-    };
-  }, [sessionActive, sessionPaused]);
-
-  // Launch poop rain function
-  const triggerPoopRain = () => {
-    const poopEmojis = ["💩", "🚽", "🧻", "💩", "💩"];
-    const newParticles: PoopParticle[] = Array.from({ length: 25 }).map(() => {
-      const id = particleIdCounter.current++;
-      const left = `${Math.random() * 95}%`;
-      const size = `${1.2 + Math.random() * 1.8}rem`;
-      const duration = `${2.5 + Math.random() * 2}s`;
-      const delay = `${Math.random() * 0.5}s`;
-      const emoji = poopEmojis[Math.floor(Math.random() * poopEmojis.length)];
-      return { id, left, duration, size, delay, emoji };
-    });
-
-    setParticles((prev) => [...prev, ...newParticles]);
-
-    // Cleanup particles
-    setTimeout(() => {
-      setParticles((prev) => prev.filter((p) => !newParticles.find((np) => np.id === p.id)));
-    }, 5000);
-  };
 
   // Calculator Math
   const weeksPerMonth = 4.33;
@@ -129,49 +68,19 @@ export default function Home() {
   const laxativeBoxes = Math.max(1, Math.round(yearlyEarnings / 14)); // Laxative package cost
   const coffeeCups = Math.max(1, Math.round(yearlyEarnings / 6.0)); // Coffee cup cost
 
-  // Session wage math
-  const sessionHourlyRate = salary / (weeklyHours * 4.33);
-  const sessionSecondRate = sessionHourlyRate / 3600;
-  const sessionCurrentEarnings = sessionTime * sessionSecondRate;
 
-  const handleSessionStart = () => {
-    setSessionActive(true);
-    setSessionPaused(false);
-    setSessionFinished(false);
-  };
-
-  const handleSessionPause = () => {
-    setSessionPaused(true);
-  };
-
-  const handleSessionFinish = () => {
-    setSessionActive(false);
-    setSessionPaused(true);
-    setSavedSessionEarnings(sessionCurrentEarnings);
-    setSessionFinished(true);
-  };
-
-  const handleSessionReset = () => {
-    setSessionFinished(false);
-    setSessionTime(0);
-    setSavedSessionEarnings(0);
-  };
-
-  const formatTime = (totalSeconds: number) => {
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
 
   return (
-    <div
-      className={cn(
-        "min-h-screen pb-24 pt-28 px-4 sm:px-6 lg:px-8 bg-background text-foreground transition-all duration-300 relative overflow-hidden",
-        font === "lexend" && "font-lexend",
-        font === "atkinson" && "font-atkinson",
-        font === "sans" && "font-sans"
-      )}
-    >
+    <>
+      <Header />
+      <div
+        className={cn(
+          "min-h-screen pb-24 pt-28 px-4 sm:px-6 lg:px-8 bg-background text-foreground transition-all duration-300 relative overflow-hidden",
+          font === "lexend" && "font-lexend",
+          font === "atkinson" && "font-atkinson",
+          font === "sans" && "font-sans"
+        )}
+      >
       {/* Poop rain container */}
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
         {particles.map((p) => (
@@ -271,140 +180,7 @@ export default function Home() {
           </ScrollVelocityContainer>
         </div>
 
-        {/* Global Live Feed Tracker */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex items-center justify-between p-4 sm:p-6 rounded-2xl bg-card border border-border shadow-md"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Faturamento Global (Simulado)</p>
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gold tracking-tight mt-1 truncate">
-                R$ {globalEarnings.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <TrendingUp className="size-4 text-green-500 animate-pulse shrink-0" /> Lucros globais subindo em tempo real!
-              </p>
-            </div>
-            <div className="text-3xl sm:text-4xl p-2 sm:p-3 bg-secondary rounded-2xl border border-gold/30 shrink-0 ml-3">💰</div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex items-center justify-between p-4 sm:p-6 rounded-2xl bg-card border border-border shadow-md"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Cagadas Registradas Hoje</p>
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-poop tracking-tight mt-1">
-                {globalPoops.toLocaleString("pt-BR")}
-              </h3>
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <Users className="size-4 text-accent shrink-0" /> Profissionais ativos aliviando o orçamento.
-              </p>
-            </div>
-            <div className="text-3xl sm:text-4xl p-2 sm:p-3 bg-primary/10 rounded-2xl border border-primary/20 shrink-0 ml-3">💩</div>
-          </motion.div>
-        </section>
-
-        {/* ===== INLINE SESSION TIMER (from sessions/start) ===== */}
-        <section id="sessao" className="mb-16 sm:mb-20 scroll-mt-24">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">Bater Ponto Remunerado</h2>
-            <p className="text-muted-foreground font-medium text-sm sm:text-base">Não faça isso de graça. Inicie o cronômetro antes de se sentar.</p>
-          </div>
-
-          <div className="max-w-lg mx-auto">
-            {sessionFinished ? (
-              /* Finished state */
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <span className="text-5xl sm:text-6xl animate-bounce inline-block">🎉</span>
-                <h3 className="text-2xl sm:text-3xl font-black text-foreground mt-4 sm:mt-6">Obra Concluída!</h3>
-                <p className="text-muted-foreground mt-2 text-sm">Você concluiu seu dever e faturou com sucesso!</p>
-
-                <div className="bg-card border border-border p-6 sm:p-8 rounded-3xl mt-6 sm:mt-8 shadow-lg relative overflow-hidden">
-                  <ShineBorder borderWidth={2} shineColor="var(--gold)" duration={6} />
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
-                    Rendimento da Sessão
-                  </span>
-                  <h3 className="text-3xl sm:text-4xl font-black text-gold">R$ {savedSessionEarnings.toFixed(2)}</h3>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Tempo gasto: {Math.max(1, Math.round(sessionTime / 60))} min ({sessionTime}s)
-                  </p>
-                </div>
-
-                <button
-                  onClick={handleSessionReset}
-                  className="w-full mt-6 bg-primary text-primary-foreground font-bold py-3.5 rounded-xl cursor-pointer hover:bg-primary/95 transition-all"
-                >
-                  Nova Sessão 🚽
-                </button>
-              </motion.div>
-            ) : (
-              /* Timer state */
-              <>
-                <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 text-center shadow-lg mb-6 relative overflow-hidden">
-                  {sessionActive && !sessionPaused && (
-                    <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500/10 text-green-500 border border-green-500/20 text-xxs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
-                      <span className="size-1.5 bg-green-500 rounded-full inline-block" /> Faturando
-                    </div>
-                  )}
-
-                  <span className="text-xxs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
-                    Lucro Acumulado
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gold tracking-tight mb-4">
-                    R$ {sessionCurrentEarnings.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-                  </h2>
-
-                  <div className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-2xl border border-border/60">
-                    <Clock className="size-4 text-primary" />
-                    <span className="font-black text-lg text-foreground font-mono">{formatTime(sessionTime)}</span>
-                  </div>
-                </div>
-
-                {/* Controls */}
-                <div className="space-y-3">
-                  {sessionPaused ? (
-                    <RainbowButton onClick={handleSessionStart} className="w-full h-12 sm:h-14 rounded-xl text-sm sm:text-base font-black cursor-pointer shadow-md">
-                      <Play className="size-5 shrink-0" /> {sessionTime > 0 ? "Retomar Cagada" : "Iniciar Cagada 🚽"}
-                    </RainbowButton>
-                  ) : (
-                    <button
-                      onClick={handleSessionPause}
-                      className="w-full h-12 sm:h-14 bg-card border border-border hover:bg-muted font-black text-foreground rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                      <Square className="size-5 shrink-0 text-red-500" /> Pausar Sessão
-                    </button>
-                  )}
-
-                  {sessionTime > 0 && (
-                    <button
-                      onClick={handleSessionFinish}
-                      className="w-full h-10 sm:h-12 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer text-sm shadow-sm"
-                    >
-                      <CheckCircle className="size-4 shrink-0" /> Concluir Obra (Faturar!)
-                    </button>
-                  )}
-                </div>
-
-                <div className="bg-primary/5 p-3 sm:p-4 rounded-2xl border border-primary/10 mt-6 flex items-start gap-3">
-                  <Info className="size-4 text-primary shrink-0 mt-0.5" />
-                  <p className="text-xxs text-muted-foreground leading-relaxed">
-                    Sua privacidade é nossa prioridade absoluta. Nenhum dado de câmera ou imagem é transmitido sem o seu consentimento. Seu dinheiro é calculado localmente.
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        </section>
 
         {/* ===== CALCULATOR SECTION ===== */}
         <section id="calculadora" className="mb-16 sm:mb-20 scroll-mt-24">
@@ -585,18 +361,12 @@ export default function Home() {
         {/* ===== STORY SECTION (from landing component) ===== */}
         <StorySection />
 
-        {/* ===== WEEKLY CHAMPIONSHIP (from landing component) ===== */}
-        <WeeklyChampionship />
 
-        {/* ===== FEED PREVIEW (from landing component) ===== */}
-        <FeedPreview />
-
-        {/* ===== STORE PREVIEW (from landing component) ===== */}
-        <StorePreview />
 
         {/* ===== CTA SECTION (from landing component) ===== */}
         <CTASection />
       </div>
     </div>
+  </>
   );
 }
