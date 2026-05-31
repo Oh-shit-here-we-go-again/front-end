@@ -41,6 +41,7 @@ export interface FamilyMember {
   first_name?: string;
   last_name?: string;
   avatar_url?: string;
+  avatar?: string;
 
   // used by FamilyRanking UI
   earnings?: string; // R$ as string (see other schemas like sessions earnings)

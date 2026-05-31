@@ -8,6 +8,7 @@ import { FamilyMember } from "@/types/family";
 import { Trophy, Users, Globe, ArrowRight, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { shopService } from "@/features/shop/services/shopService";
 import Link from "next/link";
 
 export default function RankingPage() {
@@ -18,6 +19,22 @@ export default function RankingPage() {
   const [groupRanking, setGroupRanking] = useState<FamilyMember[]>([]);
   const [groupLoading, setGroupLoading] = useState(false);
   const [groupError, setGroupError] = useState<string | null>(null);
+  const [avatarMap, setAvatarMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    shopService
+      .fetchShopItems()
+      .then((products) => {
+        const map: Record<string, string> = {};
+        products.forEach((p) => {
+          if (p.avatar_id && p.image_url) {
+            map[String(p.avatar_id)] = p.image_url;
+          }
+        });
+        setAvatarMap(map);
+      })
+      .catch((err) => console.error("Erro ao carregar avatares no ranking:", err));
+  }, []);
 
   // Countdown timer state
   const [timeLeft, setTimeLeft] = useState({
@@ -29,7 +46,7 @@ export default function RankingPage() {
 
   // Fetch group ranking if user is in a family
   useEffect(() => {
-    const familyId = (user as any)?.family;
+    const familyId = typeof user?.family === "object" && user?.family ? (user.family as any).id : user?.family;
     if (familyId && activeTab === "group") {
       setGroupLoading(true);
       setGroupError(null);
@@ -94,6 +111,7 @@ export default function RankingPage() {
   };
 
   const getInitials = (name: string) => {
+    if (!name) return "💩";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -105,29 +123,38 @@ export default function RankingPage() {
   // Prepare normalized list depending on active tab
   const getNormalizedData = () => {
     if (activeTab === "global") {
-      return globalRanking.map((item) => ({
-        id: item.id,
-        username: item.user,
-        displayName: item.user,
-        earnings: parseFloat(item.total_earnings),
-        sessions: item.total_sessions,
-        rank: item.rank_position,
-        avatarUrl: undefined,
-        detail: "Global",
-        points: item.points,
-      }));
+      return globalRanking.map((item, index) => {
+        const username = (item as any).username || item.user || "";
+        const rawAvatar = (item as any).avatar_url || (item as any).avatar;
+        const avatarUrl = rawAvatar && rawAvatar.startsWith("/") ? rawAvatar : avatarMap[String(rawAvatar)] || undefined;
+        return {
+          id: item.id,
+          username: username,
+          displayName: username,
+          earnings: parseFloat(item.total_earnings),
+          sessions: item.total_sessions,
+          rank: item.rank_position || index + 1,
+          avatarUrl: avatarUrl,
+          detail: "Global",
+          points: item.points || 0,
+        };
+      });
     } else {
-      return groupRanking.map((item, index) => ({
-        id: item.id,
-        username: item.username,
-        displayName: item.first_name ? `${item.first_name} ${item.last_name || ""}`.trim() : item.username,
-        earnings: parseFloat(item.earnings || "0"),
-        sessions: undefined, // family ranking API might not have sessions count
-        rank: index + 1,
-        avatarUrl: item.avatar_url,
-        detail: "Meu Grupo",
-        points: item.points_balance || 0,
-      }));
+      return groupRanking.map((item, index) => {
+        const rawAvatar = item.avatar_url || (item as any).avatar;
+        const avatarUrl = rawAvatar && rawAvatar.startsWith("/") ? rawAvatar : avatarMap[String(rawAvatar)] || undefined;
+        return {
+          id: item.id,
+          username: item.username,
+          displayName: item.first_name ? `${item.first_name} ${item.last_name || ""}`.trim() : item.username,
+          earnings: parseFloat(item.earnings || "0"),
+          sessions: undefined, // family ranking API might not have sessions count
+          rank: index + 1,
+          avatarUrl: avatarUrl,
+          detail: "Meu Grupo",
+          points: item.points_balance || 0,
+        };
+      });
     }
   };
 
@@ -138,11 +165,13 @@ export default function RankingPage() {
   const otherPretenders = dataList.filter((d) => d.rank > 3);
 
   const isUser = (username: string) => {
-    return user?.username?.toLowerCase() === username.toLowerCase();
+    if (!username || !user?.username) return false;
+    return user.username.toLowerCase() === username.toLowerCase();
   };
 
   const isLoading = activeTab === "global" ? globalLoading : groupLoading;
-  const hasFamily = !!(user as any)?.family;
+  const userFamilyId = typeof user?.family === "object" && user?.family ? (user.family as any).id : user?.family;
+  const hasFamily = !!userFamilyId;
 
   return (
     <div className="container max-w-lg mx-auto px-4 py-8 pb-24">

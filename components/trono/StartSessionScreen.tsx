@@ -124,8 +124,30 @@ export function StartSessionScreen() {
       // Refetch user context data to update ShitCoins in Header/Dock immediately
       const updatedUser = await apiFetch("/api/auth/me/") as any;
       updateUser(updatedUser);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erro ao encerrar sessão no trono:", err);
+      if (
+        err?.message?.includes("Sessão já finalizada") ||
+        err?.data?.detail?.includes("Sessão já finalizada") ||
+        err?.data?.message?.includes("Sessão já finalizada")
+      ) {
+        setIsActive(false);
+        setIsPaused(true);
+        setFinished(true);
+
+        // Clean local storage
+        localStorage.removeItem("active_poop_session_id");
+        localStorage.removeItem("active_poop_session_start");
+        localStorage.removeItem("active_poop_session_note");
+
+        // Refetch user context data to update ShitCoins in Header/Dock immediately
+        try {
+          const updatedUser = await apiFetch("/api/auth/me/") as any;
+          updateUser(updatedUser);
+        } catch {}
+      } else {
+        setErrorMessage(err?.message || "Erro ao encerrar sessão no trono.");
+      }
     } finally {
       setLoading(false);
     }

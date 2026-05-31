@@ -14,6 +14,7 @@ interface UseFeedReturn {
   hasMore: boolean;
   loadMore: () => Promise<void>;
   toggleLike: (sessionId: string, currentLikes: number) => Promise<void>;
+  updateCommentCount: (sessionId: string, newCount: number) => void;
   refresh: () => Promise<void>;
 }
 
@@ -29,7 +30,7 @@ export function useFeed(): UseFeedReturn {
       const newSessions = response.results.map((session: any) => ({
         ...session,
         photo_url: session.photo || session.photo_url,
-        likedByUser: false, // inicializa como false; depois o backend pode informar se já curtiu
+        likedByUser: !!session.liked_by_user,
       }));
 
       if (append) {
@@ -101,6 +102,14 @@ export function useFeed(): UseFeedReturn {
   );
 
 
+  const updateCommentCount = useCallback((sessionId: string, newCount: number) => {
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === sessionId ? { ...s, comment_count: String(newCount) } : s
+      )
+    );
+  }, []);
+
   // Efeito de montagem: chama refresh de forma segura (sem warning)
   useEffect(() => {
     let active = true;
@@ -122,6 +131,7 @@ export function useFeed(): UseFeedReturn {
     hasMore,
     loadMore,
     toggleLike,
+    updateCommentCount,
     refresh,
   };
 }

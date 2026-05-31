@@ -1,5 +1,6 @@
 export interface ShopItem {
   id: string | number;
+  avatar_id?: string;
   name: string;
   emoji: string;
   image_url?: string;

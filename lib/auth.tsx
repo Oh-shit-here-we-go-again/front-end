@@ -1,16 +1,35 @@
-// lib/auth.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { useCallback, createContext, useContext, useEffect, useReducer } from "react";
 import { AuthAction, initialState } from "../types/AuthAction";
 import { AuthState } from "../types/AuthState";
 import { User } from "../types/User";
+import { shopService } from "@/features/shop/services/shopService";
 import {
   api,
   getTokenFromCookie,
   removeTokenCookie,
   setTokenCookie,
 } from "./api";
+
+async function populateUserAvatar(user: User): Promise<User> {
+  if (user.avatar) {
+    if (user.avatar.startsWith("/") || user.avatar.startsWith("http")) {
+      user.avatar_url = user.avatar;
+    } else {
+      try {
+        const products = await shopService.fetchShopItems();
+        const equipped = products.find((p) => String(p.avatar_id) === String(user.avatar) || String(p.id) === String(user.avatar) || p.image_url === user.avatar);
+        if (equipped && equipped.image_url) {
+          user.avatar_url = equipped.image_url;
+        }
+      } catch (e) {
+        console.error("Erro ao popular avatar do usuário:", e);
+      }
+    }
+  }
+  return user;
+}
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
@@ -41,7 +60,7 @@ const AuthContext = createContext<{
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  updateUser: (user: User) => void;
+  updateUser: (user: User) => void | Promise<void>;
   register: (registerData: any) => Promise<void>;
 } | null>(null);
 
@@ -57,7 +76,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       try {
         const user = await api.get<User>("/auth/me/");
-        dispatch({ type: "RESTORE_STATE", payload: user });
+        const populated = await populateUserAvatar(user);
+        dispatch({ type: "RESTORE_STATE", payload: populated });
       } catch {
         removeTokenCookie();
         dispatch({ type: "RESTORE_STATE", payload: null });
@@ -65,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     restoreUser();
   }, []);
+
   const login = async (username: string, password: string) => {
     dispatch({ type: "LOGIN_START" });
     try {
@@ -75,20 +96,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
       setTokenCookie(access);
       const user = await api.get<User>("/auth/me/");
-      dispatch({ type: "LOGIN_SUCCESS", payload: user });
+      const populated = await populateUserAvatar(user);
+      dispatch({ type: "LOGIN_SUCCESS", payload: populated });
     } catch (error) {
       dispatch({ type: "LOGIN_FAILURE" });
       throw error;
     }
   };
+
   const logout = () => {
     removeTokenCookie();
     dispatch({ type: "LOGOUT" });
     window.location.href = "/login?descarga=true";
   };
-  const updateUser = (user: User) => {
-    dispatch({ type: "UPDATE_USER", payload: user });
-  };
+
+  const updateUser = useCallback(async (user: User) => {
+    const populated = await populateUserAvatar(user);
+    dispatch({ type: "UPDATE_USER", payload: populated });
+  }, []);
+
   const register = async (registerData: any) => {
     await api.post(
       "/auth/register/",

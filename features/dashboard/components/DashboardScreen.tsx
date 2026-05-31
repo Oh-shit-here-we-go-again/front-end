@@ -168,7 +168,7 @@ export function DashboardScreen() {
           <h3 className="font-extrabold text-lg flex items-center gap-2">
             <Calendar className="size-5 text-primary" /> Histórico de Alívios
           </h3>
-          <span className="text-xs text-muted-foreground font-medium">Últimas 4 sessões</span>
+          <span className="text-xs text-muted-foreground font-medium">Todas as sessões</span>
         </div>
 
         <div className="divide-y divide-border/60">
