@@ -1,32 +1,32 @@
 // components/header/Header.tsx
 "use client";
 
-import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Dock, DockIcon } from "@/components/ui/dock";
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAuth } from "@/lib/auth";
-import { NAV_ITEMS, SOCIAL_LINKS } from "./NavItems";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AuthAvatar } from "./AuthAvatar";
-import { Icons } from "./Icons"; // você pode mover os ícones customizados para um arquivo separado
+import { NAV_ITEMS } from "./NavItems";
 
-import { Coins, Clock, Plus, Menu as MenuIcon, User as UserIcon, LogOut as LogOutIcon } from "lucide-react";
+import {
+  Coins,
+  LogOut as LogOutIcon,
+  Menu as MenuIcon,
+  Plus,
+} from "lucide-react";
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -34,7 +34,7 @@ export function Header() {
 
   // Filtra itens baseado em autenticação
   const filteredNavItems = NAV_ITEMS.filter(
-    (item) => !item.authRequired || (item.authRequired && user)
+    (item) => !item.authRequired || (item.authRequired && user),
   );
 
   const displayName = user?.first_name
@@ -59,16 +59,26 @@ export function Header() {
               </Link>
 
               {/* Logo no Desktop (escondido no mobile) */}
-              <Link href="/" className="hidden sm:flex items-center gap-2 select-none group">
-                <span className="text-2xl transition-transform group-hover:scale-110">💩</span>
+              <Link
+                href="/"
+                className="hidden sm:flex items-center gap-2 select-none group"
+              >
+                <span className="text-2xl transition-transform group-hover:scale-110">
+                  💩
+                </span>
                 <span className="font-black text-lg tracking-tight bg-gradient-to-r from-poop via-accent to-gold bg-clip-text text-transparent">
                   Shitgo
                 </span>
               </Link>
             </>
           ) : (
-            <Link href="/" className="flex items-center gap-2 select-none group">
-              <span className="text-2xl transition-transform group-hover:scale-110">💩</span>
+            <Link
+              href="/"
+              className="flex items-center gap-2 select-none group"
+            >
+              <span className="text-2xl transition-transform group-hover:scale-110">
+                💩
+              </span>
               <span className="font-black text-lg tracking-tight bg-gradient-to-r from-poop via-accent to-gold bg-clip-text text-transparent">
                 Shitgo
               </span>
@@ -138,11 +148,17 @@ export function Header() {
       {/* Floating Bottom Dock Navigation: MagicUI Dock Implementation */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
         <TooltipProvider>
-          <Dock direction="middle" className="border border-border/80 bg-background/80 backdrop-blur-md shadow-xl rounded-2xl px-4 py-2 flex items-center justify-center gap-1">
+          <Dock
+            direction="middle"
+            className="border border-border/80 bg-background/80 backdrop-blur-md shadow-xl rounded-2xl px-4 py-2 flex items-center justify-center gap-1"
+          >
             {filteredNavItems.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <DockIcon key={item.label} className="flex items-center justify-center">
+                <DockIcon
+                  key={item.label}
+                  className="flex items-center justify-center"
+                >
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
@@ -152,13 +168,16 @@ export function Header() {
                           "size-10 rounded-full flex items-center justify-center transition-all duration-200",
                           isActive
                             ? "bg-poop text-white shadow-md scale-110"
-                            : "text-muted-foreground hover:bg-poop/10 hover:text-poop"
+                            : "text-muted-foreground hover:bg-poop/10 hover:text-poop",
                         )}
                       >
                         <item.icon className="size-5 shrink-0" />
                       </Link>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-popover text-popover-foreground border border-border font-bold text-xs rounded-lg px-2.5 py-1">
+                    <TooltipContent
+                      side="top"
+                      className="bg-popover text-popover-foreground border border-border font-bold text-xs rounded-lg px-2.5 py-1"
+                    >
                       <p>{item.label}</p>
                     </TooltipContent>
                   </Tooltip>
@@ -171,15 +190,30 @@ export function Header() {
               <DockIcon className="sm:hidden flex items-center justify-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="size-10 rounded-full flex items-center justify-center text-muted-foreground hover:bg-poop/10 hover:text-poop transition-all cursor-pointer">
+                    <button
+                      type="button"
+                      title="Abrir menu"
+                      aria-label="Abrir menu"
+                      className="size-10 rounded-full flex items-center justify-center text-muted-foreground hover:bg-poop/10 hover:text-poop transition-all cursor-pointer"
+                    >
                       <MenuIcon className="size-5 shrink-0" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" side="top" className="w-48 mb-3 bg-popover border border-border p-2 rounded-2xl shadow-xl z-50">
+                  <DropdownMenuContent
+                    align="end"
+                    side="top"
+                    className="w-48 mb-3 bg-popover border border-border p-2 rounded-2xl shadow-xl z-50"
+                  >
                     <div className="px-3 py-1.5 text-[10px] text-muted-foreground border-b border-border/60 mb-1">
-                      Logado como <span className="font-bold text-foreground">@{user.username}</span>
+                      Logado como{" "}
+                      <span className="font-bold text-foreground">
+                        @{user.username}
+                      </span>
                     </div>
-                    <DropdownMenuItem onClick={logout} className="flex items-center gap-2 cursor-pointer text-xs font-bold p-2 text-red-600 hover:bg-red-500/10 rounded-lg">
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="flex items-center gap-2 cursor-pointer text-xs font-bold p-2 text-red-600 hover:bg-red-500/10 rounded-lg"
+                    >
                       <LogOutIcon className="size-4" /> Dar Descarga (Sair)
                     </DropdownMenuItem>
                   </DropdownMenuContent>

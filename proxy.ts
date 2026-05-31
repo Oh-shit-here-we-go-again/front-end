@@ -11,6 +11,7 @@ const PROTECTED_ROUTES = [
   "/profile",
   "/family",
   "/families",
+  "/feed",
 ];
 
 export function proxy(request: NextRequest) {
@@ -30,7 +31,7 @@ export function proxy(request: NextRequest) {
 
   // Se está logado e tenta acessar login/register → redireciona para o trono
   if (isAuthRoute && token) {
-    const url = new URL("/trono", request.url);
+    const url = new URL("/dashbord", request.url);
     return NextResponse.redirect(url);
   }
 

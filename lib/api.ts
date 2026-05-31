@@ -1,18 +1,27 @@
 // lib/api.ts
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://psephological-trigonally-gaynelle.ngrok-free.dev/api";
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://psephological-trigonally-gaynelle.ngrok-free.dev/api";
 
 export type RequestOptions = RequestInit & {
   requiresAuth?: boolean;
   params?: Record<string, string>;
 };
 
+export type ApiErrorPayload = {
+  detail?: string;
+  message?: string;
+  [key: string]: unknown;
+};
+
 export class ApiError extends Error {
   status: number;
-  data: any;
+  data: ApiErrorPayload;
 
-  constructor(status: number, data: any, message?: string) {
-    super(message || data.detail || data.message || "Erro catastrófico da API.");
+  constructor(status: number, data: ApiErrorPayload, message?: string) {
+    super(
+      message || data.detail || data.message || "Erro catastrófico da API.",
+    );
     this.status = status;
     this.data = data;
     this.name = "ApiError";
@@ -49,7 +58,10 @@ async function request<T>(
   let cleanEndpoint = endpoint;
   if (API_BASE_URL.endsWith("/api") && cleanEndpoint.startsWith("/api/")) {
     cleanEndpoint = cleanEndpoint.substring(4);
-  } else if (API_BASE_URL.endsWith("/api/") && cleanEndpoint.startsWith("/api/")) {
+  } else if (
+    API_BASE_URL.endsWith("/api/") &&
+    cleanEndpoint.startsWith("/api/")
+  ) {
     cleanEndpoint = cleanEndpoint.substring(5);
   }
 
@@ -61,7 +73,7 @@ async function request<T>(
 
   const defaultHeaders: Record<string, string> = {
     "ngrok-skip-browser-warning": "true",
-    ...headers as Record<string, string> | undefined,
+    ...(headers as Record<string, string> | undefined),
   };
 
   if (fetchOptions.body && !(fetchOptions.body instanceof FormData)) {
@@ -83,12 +95,22 @@ async function request<T>(
   });
 
   if (!res.ok) {
-    let errorData;
+    let errorData: ApiErrorPayload;
     try {
-      errorData = await res.json();
+      errorData = (await res.json()) as ApiErrorPayload;
     } catch {
       errorData = { message: `API error ${res.status}` };
     }
+
+    // Keep a useful trace for debugging 5xx coming from the backend.
+    // This helps distinguish auth/permission crashes vs response-shape issues.
+
+    console.error("API request failed", {
+      url,
+      status: res.status,
+      errorData,
+    });
+
     throw new ApiError(res.status, errorData);
   }
 
@@ -101,7 +123,8 @@ async function request<T>(
 
 // Standard fetch wrapper (matches the signature of the old lib/api.ts apiFetch)
 export async function apiFetch(endpoint: string, options: RequestOptions = {}) {
-  const isAuthEndpoint = endpoint.includes("/auth/login/") || endpoint.includes("/auth/register/");
+  const isAuthEndpoint =
+    endpoint.includes("/auth/login/") || endpoint.includes("/auth/register/");
   return request(endpoint, {
     requiresAuth: !isAuthEndpoint,
     ...options,

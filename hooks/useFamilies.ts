@@ -2,7 +2,7 @@
 "use client";
 
 import { familyService } from "@/services/familyService";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { toast } from "sonner";
 import { Family, FamilyMember } from "../types/family";
@@ -60,8 +60,18 @@ export function useFamilies(): UseFamiliesReturn {
       setFamilyRanking(ranking);
     } catch (error) {
       console.error("Erro ao buscar detalhes da família:", error);
+
+      const maybeStatus = (error as { status?: number | string } | undefined)
+        ?.status;
+      const maybeData = (error as { data?: unknown } | undefined)?.data;
+
+      console.error("Family details failure payload:", {
+        maybeStatus,
+        maybeData,
+      });
+
       toast.error(
-        "🚽 O vaso entupiu de novo! Não consegui puxar os detalhes dessa família. Me dá mais uma chance?",
+        `🚽 O vaso entupiu! Falha ao buscar detalhes (status: ${maybeStatus ?? "?"}). Confira o console para o payload do backend.`,
       );
     } finally {
       setIsLoading(false);
@@ -149,7 +159,7 @@ export function useFamilies(): UseFamiliesReturn {
       setFamilyRanking([]);
       await fetchFamilies();
       return true;
-    } catch (error) {
+    } catch {
       toast.error(
         "😭 Não consegui sair! O encanamento travou e o vaso ficou de drama. Tenta de novo (ou chama um encanador do trono).",
       );
@@ -163,9 +173,22 @@ export function useFamilies(): UseFamiliesReturn {
     setFamilyRanking([]);
   }, []);
 
-  // Evita o warning do React sobre setState dentro de effect: o carregamento inicia em função
-  // passada pelo componente (ex: ao montar uma tela). Caso queira manter automatico, remova
-  // este comentário e use useEffect com um padrão cancelável.
+  // Carrega automaticamente a lista ao montar o hook/página.
+  useEffect(() => {
+    let isActive = true;
+
+    const run = async () => {
+      // Evita update de estado se o componente desmontar.
+      if (!isActive) return;
+      await fetchFamilies();
+    };
+
+    run();
+
+    return () => {
+      isActive = false;
+    };
+  }, [fetchFamilies]);
 
   return {
     families,

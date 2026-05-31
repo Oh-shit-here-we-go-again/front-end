@@ -5,13 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Crown, Globe, Lock, Users } from "lucide-react";
 
+import { AvatarCircles } from "@/components/ui/avatar-circles";
 import { cn } from "@/lib/utils";
+
 import { useState } from "react";
-import { Family } from "../../types/family";
+import { Family, FamilyMember } from "../../types/family";
+
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface FamilyCardProps {
   family: Family;
+  members?: FamilyMember[]; // primeiros membros para o AvatarCircles
   isUserFamily?: boolean;
   onViewDetails?: (id: string) => void;
   onJoin?: (code: string) => void;
@@ -31,6 +35,7 @@ const COCO_JOKES = [
 
 export function FamilyCard({
   family,
+  members = [],
   isUserFamily = false,
   onViewDetails,
   onJoin,
@@ -38,7 +43,9 @@ export function FamilyCard({
   showCopyCode = true,
 }: FamilyCardProps) {
   const [copied, setCopied] = useState(false);
-  const randomJoke = COCO_JOKES[0];
+  const [randomJoke] = useState(
+    () => COCO_JOKES[Math.floor(Math.random() * COCO_JOKES.length)],
+  );
 
   const handleCopyCode = async () => {
     await navigator.clipboard.writeText(family.invite_code);
@@ -49,6 +56,13 @@ export function FamilyCard({
   const memberCount = parseInt(family.member_count);
   const isCrowded = memberCount > 10;
   const isFull = memberCount >= 20;
+
+  const avatarUrls = (members ?? []).slice(0, 5).map((m) => ({
+    imageUrl: m.avatar_url || "/default-avatar.png",
+    profileUrl: `/profile/${m.id}`,
+  }));
+
+  const remainingMembers = Math.max(0, memberCount - avatarUrls.length);
 
   return (
     <Card
@@ -89,9 +103,24 @@ export function FamilyCard({
               {isUserFamily ? "Sua família 💩" : "Família pública"}
             </span>
           </div>
-          <span className="text-xs text-muted-foreground italic">
+          <span className="text-[11px] text-muted-foreground italic line-clamp-1 max-w-[140px]">
             {randomJoke}
           </span>
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {avatarUrls.length > 0 && (
+              <AvatarCircles
+                avatarUrls={avatarUrls}
+                numPeople={remainingMembers > 0 ? remainingMembers : undefined}
+                className="justify-start"
+              />
+            )}
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {memberCount}/20
+            </span>
+          </div>
         </div>
 
         {showCopyCode && !isUserFamily && (

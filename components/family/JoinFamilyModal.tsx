@@ -1,7 +1,7 @@
 // components/family/JoinFamilyModal.tsx
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,10 +9,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, KeyRound } from "lucide-react";
+import { KeyRound, LogIn } from "lucide-react";
+import { useState } from "react";
 
 interface JoinFamilyModalProps {
   onJoin: (code: string) => Promise<void>;
@@ -56,7 +56,7 @@ export function JoinFamilyModal({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md md:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <KeyRound className="size-5 text-poop" />
