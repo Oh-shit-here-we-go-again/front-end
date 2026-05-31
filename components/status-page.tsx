@@ -1,3 +1,5 @@
+"use client";
+
 // app/components/status-page.tsx
 import { cn } from "@/lib/utils";
 import Image from "next/image";

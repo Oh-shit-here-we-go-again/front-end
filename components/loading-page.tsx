@@ -1,3 +1,5 @@
+"use client";
+
 // app/components/loading-page.tsx
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import { useEffect, useState } from "react";
