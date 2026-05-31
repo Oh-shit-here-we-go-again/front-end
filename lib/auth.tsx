@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     removeTokenCookie();
     dispatch({ type: "LOGOUT" });
-    window.location.href = "/login";
+    window.location.href = "/login?descarga=true";
   };
   const updateUser = (user: User) => {
     dispatch({ type: "UPDATE_USER", payload: user });

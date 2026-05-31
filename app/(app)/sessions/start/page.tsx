@@ -6,15 +6,21 @@ import { Clock, Play, Square, CheckCircle, Info, Sparkles } from "lucide-react";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShineBorder } from "@/components/ui/shine-border";
 
+import { apiFetch } from "@/lib/api";
+
 export default function StartSessionPage() {
-  const { user } = useAuth();
-  
+  const { user, updateUser } = useAuth();
+
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
   const [time, setTime] = useState(0); // in seconds
   const [note, setNote] = useState("");
   const [finished, setFinished] = useState(false);
   const [savedEarnings, setSavedEarnings] = useState(0);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const incrementRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -25,6 +31,23 @@ export default function StartSessionPage() {
   const secondRate = hourlyRate / 3600;
 
   const currentEarnings = time * secondRate;
+
+  // Restore active session on mount
+  useEffect(() => {
+    const savedId = localStorage.getItem("active_poop_session_id");
+    const savedStart = localStorage.getItem("active_poop_session_start");
+    const savedNote = localStorage.getItem("active_poop_session_note");
+
+    if (savedId && savedStart) {
+      setSessionId(savedId);
+      setIsActive(true);
+      setIsPaused(false);
+      if (savedNote) setNote(savedNote);
+
+      const elapsedSeconds = Math.floor((Date.now() - Number(savedStart)) / 1000);
+      setTime(elapsedSeconds);
+    }
+  }, []);
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -40,31 +63,73 @@ export default function StartSessionPage() {
     };
   }, [isActive, isPaused]);
 
-  const handleStart = () => {
-    setIsActive(true);
-    setIsPaused(false);
+  // Sync note to localStorage in case page reloads
+  useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem("active_poop_session_note", note);
+    }
+  }, [note, sessionId]);
+
+  const handleStart = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      if (!sessionId) {
+        const sessionData = await apiFetch("/api/sessions/start/", {
+          method: "POST",
+        }) as any;
+        setSessionId(sessionData.id);
+        localStorage.setItem("active_poop_session_id", sessionData.id);
+        localStorage.setItem("active_poop_session_start", Date.now().toString());
+      }
+      setIsActive(true);
+      setIsPaused(false);
+    } catch (err) {
+      console.error("Erro ao iniciar sessão no trono:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePause = () => {
     setIsPaused(true);
   };
 
-  const handleFinish = () => {
-    setIsActive(false);
-    setIsPaused(true);
-    setSavedEarnings(currentEarnings);
-    setFinished(true);
+  const handleFinish = async () => {
+    if (!sessionId) return;
+    if (!photoFile) {
+      setErrorMessage("Por favor, selecione ou tire uma foto para servir de comprovante no trono.");
+      return;
+    }
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const formData = new FormData();
+      formData.append("photo", photoFile);
 
-    // Save to local storage mock history
-    const newSession = {
-      id: Math.random(),
-      date: "Hoje",
-      duration: Math.max(1, Math.round(time / 60)),
-      earned: Number(currentEarnings.toFixed(2)),
-      note: note || "Cagada de expediente"
-    };
+      const finishedSession = await apiFetch(`/api/sessions/${sessionId}/stop/`, {
+        method: "POST",
+        body: formData,
+      }) as any;
 
-    console.log("Saved Poop Session:", newSession);
+      setIsActive(false);
+      setIsPaused(true);
+      setSavedEarnings(Number(finishedSession.earnings || currentEarnings));
+      setFinished(true);
+
+      // Clean local storage
+      localStorage.removeItem("active_poop_session_id");
+      localStorage.removeItem("active_poop_session_start");
+      localStorage.removeItem("active_poop_session_note");
+
+      // Refetch user context data to update ShitCoins in Header/Dock immediately
+      const updatedUser = await apiFetch("/api/auth/me/") as any;
+      updateUser(updatedUser);
+    } catch (err) {
+      console.error("Erro ao encerrar sessão no trono:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatTime = (totalSeconds: number) => {
@@ -143,20 +208,53 @@ export default function StartSessionPage() {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Ex: Refletindo sobre a reunião trimestral"
-          disabled={isActive && !isPaused}
           className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60 transition-all"
         />
+      </div>
+
+      {/* Photo File upload */}
+      <div className="mb-6">
+        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+          Comprovante da Obra Construida (Foto Obrigatória)
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              setPhotoFile(e.target.files[0]);
+              setErrorMessage(null);
+            }
+          }}
+          className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary/20 file:cursor-pointer"
+        />
+        {photoFile && (
+          <p className="text-xxs text-green-500 font-bold mt-1.5">
+            ✓ Arquivo selecionado: {photoFile.name}
+          </p>
+        )}
+        {errorMessage && (
+          <p className="text-xs text-red-500 font-bold mt-2">
+            ⚠️ {errorMessage}
+          </p>
+        )}
       </div>
 
       {/* Controls */}
       <div className="space-y-3">
         {isPaused ? (
-          <RainbowButton onClick={handleStart} className="w-full h-14 rounded-xl text-base font-black cursor-pointer shadow-md">
-            <Play className="size-5 shrink-0" /> {time > 0 ? "Retomar Cagada" : "Iniciar Cagada 🚽"}
+          <RainbowButton
+            onClick={handleStart}
+            disabled={loading}
+            className="w-full h-14 rounded-xl text-base font-black cursor-pointer shadow-md"
+          >
+            <Play className="size-5 shrink-0" /> {loading ? "Iniciando..." : time > 0 ? "Retomar Cagada" : "Iniciar Cagada 🚽"}
           </RainbowButton>
         ) : (
           <button
             onClick={handlePause}
+            disabled={loading}
             className="w-full h-14 bg-card border border-border hover:bg-muted font-black text-foreground rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <Square className="size-5 shrink-0 text-red-500" /> Pausar Sessão
@@ -166,9 +264,10 @@ export default function StartSessionPage() {
         {time > 0 && (
           <button
             onClick={handleFinish}
-            className="w-full h-12 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer text-sm shadow-sm"
+            disabled={loading}
+            className="w-full h-12 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer text-sm shadow-sm disabled:opacity-60"
           >
-            <CheckCircle className="size-4 shrink-0" /> Concluir Obra (Faturar!)
+            <CheckCircle className="size-4 shrink-0" /> {loading ? "Finalizando..." : "Concluir Obra (Faturar!)"}
           </button>
         )}
       </div>

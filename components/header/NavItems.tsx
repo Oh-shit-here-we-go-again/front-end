@@ -14,13 +14,13 @@ import { Icons } from "./Icons";
 export const NAV_ITEMS = [
   { href: "/", icon: Home, label: "Home", authRequired: false },
   {
-    href: "/trono",
+    href: "/dashboard",
     icon: LayoutDashboard,
-    label: "Trono",
+    label: "Dashboard de Merda",
     authRequired: true,
   },
   { href: "/ranking", icon: TrendingUp, label: "Ranking", authRequired: true },
-  { href: "/store", icon: Store, label: "Loja", authRequired: true },
+  { href: "/lojinha", icon: Store, label: "shoPum", authRequired: true },
   { href: "/feed", icon: ImageIcon, label: "OnlyFezes", authRequired: true },
   { href: "/families", icon: Users, label: "Famílias", authRequired: true }, // NOVO
   { href: "/profile", icon: UserIcon, label: "Perfil", authRequired: true },

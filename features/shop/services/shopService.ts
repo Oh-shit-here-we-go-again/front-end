@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api";
-import { ShopItem } from "../types/shop.types";
+import { ShopItem, Order } from "../types/shop.types";
+
 
 // Local fallbacks in case the backend DB has no products populated yet
 export const localFallbackItems: ShopItem[] = [
@@ -57,14 +58,18 @@ export const shopService = {
         return localFallbackItems;
       }
 
-      return items.map((prod: any) => ({
-        id: prod.id,
-        name: prod.name,
-        emoji: getEmojiForProduct(prod.name),
-        cost: prod.price_points,
-        description: prod.description || "Nenhuma descrição informada pelo fabricante.",
-        type: prod.stock > 0 ? "Disponível" : "Sem Estoque",
-      }));
+      return items.map((prod: any) => {
+        const name = prod.name || prod.avatar_name || "Mimo Especial";
+        return {
+          id: prod.id,
+          name: name,
+          emoji: getEmojiForProduct(name),
+          image_url: prod.image_url || prod.avatar_image,
+          cost: prod.price_points,
+          description: prod.description || "Nenhuma descrição informada pelo fabricante para este avatar especial.",
+          type: prod.stock !== undefined ? (prod.stock > 0 ? "Disponível" : "Sem Estoque") : "Disponível",
+        };
+      });
     } catch (err) {
       console.warn("Falha ao buscar produtos da API. Usando catálogo local:", err);
       return localFallbackItems;
@@ -82,7 +87,7 @@ export const shopService = {
         if (userCoins < item.cost) {
           return {
             success: false,
-            message: `ShitCoins insuficientes! Você precisa de mais ${item.cost - userCoins} moedas.`,
+            message: `Cocoins insuficientes! Você precisa de mais ${item.cost - userCoins} moedas.`,
             newCoins: userCoins
           };
         }
@@ -118,5 +123,16 @@ export const shopService = {
         newCoins: userCoins
       };
     }
+  },
+
+  async fetchOrders(): Promise<Order[]> {
+    try {
+      const data = await apiFetch("/api/store/orders/") as any;
+      return Array.isArray(data) ? data : data?.results || [];
+    } catch (err) {
+      console.error("Falha ao buscar pedidos da API:", err);
+      return [];
+    }
   }
 };
+

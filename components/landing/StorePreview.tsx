@@ -16,10 +16,10 @@ export function StorePreview() {
     <section className="mb-20">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-black tracking-tight mb-2">
-          Lojinha do Banheiro 🛍️
+          shoPum 🛍️
         </h2>
         <p className="text-muted-foreground font-medium max-w-xl mx-auto">
-          Troque suas ShitCoins por produtos que vão melhorar sua experiência no trono — 
+          Troque suas Cocoins por produtos que vão melhorar sua experiência no trono — 
           ou presentear aquele colega que também adora uma cagada remunerada.
         </p>
       </div>

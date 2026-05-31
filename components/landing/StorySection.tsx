@@ -25,11 +25,11 @@ export function StorySection() {
           </p>
           <p>
             Até que um dia, descobriu o <strong>ShitGo</strong>: ao sincronizar seu relógio de ponto com o vaso, 
-            cada minuto no trono passou a ser convertido em <strong className="text-accent">ShitCoins</strong>. 
+            cada minuto no trono passou a ser convertido em <strong className="text-accent">Cocoins</strong>. 
             Em um mês, João faturou o equivalente a 2 dias de salário extra — só cagando.
           </p>
           <p>
-            Hoje ele é <strong className="text-poop">Trono de Ouro I</strong> no ranking nacional, troca suas ShitCoins por 
+            Hoje ele é <strong className="text-poop">Trono de Ouro I</strong> no ranking nacional, troca suas Cocoins por 
             kits de café premium e até ajuda amigos a subirem de elo nas ligas intestinas.
           </p>
           <div className="border-l-4 border-accent pl-4 italic text-muted-foreground">
