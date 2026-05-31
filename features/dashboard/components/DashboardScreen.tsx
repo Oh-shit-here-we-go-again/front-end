@@ -8,10 +8,37 @@ import { ShineBorder } from "@/components/ui/shine-border";
 import { cn } from "@/lib/utils";
 import { sessionService } from "../services/sessionService";
 import { DjangoSession } from "../types/session.types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function DashboardScreen() {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<DjangoSession[]>([]);
+  const [panicModalOpen, setPanicModalOpen] = useState(false);
+  const [panicMessage, setPanicMessage] = useState("");
+
+  const triggerDramaticPanic = () => {
+    const PANIC_ERRORS = [
+      "O desespero me consome por completo! Eu acabei de concluir com êxito a minha produção diária remunerada, mas ao olhar para o lado... o rolo está completamente nu! Não sobrou sequer uma folha de papel higiênico no banheiro da empresa. Estou aqui preso no cubículo, em silêncio absoluto, ouvindo os passos dos meus colegas no corredor e implorando para que alguém venha me salvar!",
+      "Eu estava lá, na minha paz sagrada, faturando mais R$ 2,50 de tempo remunerado longe do computador, quando ouço passos pesados. De repente, três batidas secas na porta e a voz do meu chefe ressoa: 'Você está aí? A planilha de fechamento é pra agora!'. Minha pressão caiu instantaneamente, meu coração disparou de pânico e eu só consegui dar descarga no desespero para fingir que estava saindo!",
+      "Estou vivendo o pior pesadelo do trabalhador CLT! O meu tempo no banheiro está se estendendo além do limite de segurança dos 15 minutos clássicos. Eu passo o papel, olho, e a limpeza parece incompleta... Passo de novo, e nada de limpar por completo! A paranoia está me devorando: o RH vai rastrear minha ausência? O gerente vai me dar advertência? Minhas pernas estão dormentes e eu não consigo sair desse ciclo infinito de limpeza!",
+      "Eu achei que estava sozinho na minha fortaleza de paz, mas a porta principal do banheiro abriu com força. Dois colegas do time de vendas entraram e começaram a lavar as mãos enquanto comentavam fofocas do escritório. Fiquei paralisado no cubículo, segurando a respiração para não fazer o menor ruído e revelar a minha identidade secreta. A vergonha de ser descoberto faturando em silêncio me mata!",
+      "Eu estiquei tanto a minha pausa remunerada que a tragédia física me atingiu sem piedade. Quando finalmente decidi que já tinha lucrado o suficiente (R$ 8,00 na cotação do meu salário), tentei ficar de pé, mas minhas pernas estavam completamente dormentes! Pareciam duas gelatinas sem vida. Eu desabei no chão do cubículo, tateando a parede e rastejando de volta para tentar reativar a circulação antes que alguém entre!",
+      "Eu decidi usar o banheiro da diretoria no 5º andar para cagar com o luxo que eu mereço. Mas a minha produção foi tão intensa e expressiva que o ambiente ficou completamente insuportável! De repente, ouço a maçaneta girar... É o diretor financeiro entrando! Eu estou trancado aqui dentro, suando frio de pânico, sabendo que se eu abrir essa porta e ele sentir o bouquet da minha produção, minha demissão será assinada hoje mesmo!",
+      "Eu puxei a descarga com orgulho após uma sessão monumental... mas a água começou a subir em vez de descer! O pânico foi imediato. A água está subindo, quase transbordando, e o meu barro colossal está flutuando como uma boia do desespero. O que eu faço?! Se eu sair correndo, vão me rastrear pelas câmeras do corredor! Se eu ficar, serei o responsável pelo maior alagamento fecal da história do escritório!",
+      "A segunda-feira mal começou e a minha barriga deu um nó violento logo após o café da copa da firma. Eu corri desesperado para o banheiro e desabei no vaso. Estou aqui deitado em suor frio, ouvindo os alarmes de reuniões apitando no meu celular no bolso. Eu só queria uma manhã de trabalho normal, mas minhas entranhas decidiram fazer uma revolução sindical contra o meu próprio corpo!",
+      "O silêncio no banheiro do escritório era absoluto, quase solene... até que eu soltei uma nota sonora que ecoou como um trovão de pânico pelas paredes de azulejo! O eco foi tão violento que o encarregado do RH, que estava no mictório ao lado, parou imediatamente o que estava fazendo. A humilhação de ter a minha identidade associada àquele estrondo vai me forçar a pedir demissão!",
+      "Eu caí na armadilha clássica: tomei três cafezinhos de graça da máquina da empresa para ter energia para trabalhar. A consequência foi instantânea e devastadora. Minha barriga começou a gritar em pânico e eu tive que correr para o trono. Agora estou preso aqui, desidratando e faturando centavos enquanto o meu estômago reclama das minhas decisões de vida corporativa!",
+      "Eu fui usar o banheiro comum no subsolo da empresa e o assento de plástico estava tão congelante que o choque térmico contra a minha pele fez a minha alma sair do corpo por alguns segundos! Eu contraí instantaneamente toda a minha musculatura de sustentação, a minha produção recuou assustada para o fundo das minhas entranhas e eu esqueci até qual era a minha meta diária de trabalho!"
+    ];
+    const randomIndex = Math.floor(Math.random() * PANIC_ERRORS.length);
+    setPanicMessage(PANIC_ERRORS[randomIndex]);
+    setPanicModalOpen(true);
+  };
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -211,22 +238,52 @@ export function DashboardScreen() {
         </div>
       </div>
 
-      {/* CLT Motivation card */}
-      <div className="bg-gradient-to-r from-poop/15 via-gold/5 to-accent/15 border border-border rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Deu merda emergency button */}
+      <div className="bg-red-500/5 border-2 border-red-500/25 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm mb-6">
         <div>
-          <h4 className="font-extrabold text-base flex items-center gap-1.5">
-            🏆 Torneio Semanal CLT <span className="animate-pulse">🔥</span>
+          <h4 className="font-extrabold text-base text-red-600 flex items-center gap-1.5 font-mono">
+            🚨 BOTÃO DE EMERGÊNCIA: DEU MERDA!
           </h4>
           <p className="text-xs text-muted-foreground mt-1 max-w-lg">
-            Participe da liga de cagadores profissionais da sua empresa. Quem ficar no Top 3 do ranking semanal ganha 500 moedas extras para a Lojinha!
+            Acabou o papel? O chefe bateu na porta? Sente o pânico total? Use o botão de emergência para relatar a sua tragédia instantânea ao servidor.
           </p>
         </div>
-        <span
-          className="inline-flex items-center gap-1.5 text-xs font-black text-muted-foreground cursor-not-allowed whitespace-nowrap"
+        <button
+          onClick={triggerDramaticPanic}
+          className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap uppercase tracking-widest flex items-center gap-2 animate-pulse"
         >
-          Leaderboard (Em breve 🚧)
-        </span>
+          💩 Deu Merda!
+        </button>
       </div>
+
+      {/* Dramatic Fecal Panic Modal */}
+      <Dialog open={panicModalOpen} onOpenChange={setPanicModalOpen}>
+        <DialogContent className="sm:max-w-md p-6 rounded-3xl border-4 border-red-600/35 bg-gradient-to-br from-red-50/98 via-stone-50/98 to-red-100/90 dark:from-stone-950 dark:via-stone-900/95 dark:to-red-950/60 dark:border-red-700/35 shadow-2xl overflow-hidden text-center flex flex-col items-center justify-center gap-4 backdrop-blur-md">
+          <DialogHeader className="pb-2 border-b border-red-600/20 w-full shrink-0">
+            <DialogTitle className="text-lg font-serif italic text-red-700 dark:text-red-400 flex items-center justify-center gap-2">
+              🚨 COMUNICADO DE TRAGÉDIA 🚨
+            </DialogTitle>
+            <p className="text-[9px] text-stone-500 dark:text-stone-400 font-mono tracking-widest uppercase">
+              Relatório em Primeira Pessoa de Colapso Interno
+            </p>
+          </DialogHeader>
+
+          <div className="text-6xl animate-bounce my-2 select-none">
+            😱🚽💥
+          </div>
+
+          <p className="text-sm font-serif italic text-stone-800 dark:text-stone-200 leading-relaxed px-2 bg-white/70 dark:bg-stone-900/70 p-5 rounded-2xl border border-red-600/10 shadow-inner max-h-[30vh] overflow-y-auto">
+            "{panicMessage}"
+          </p>
+
+          <button
+            onClick={() => setPanicModalOpen(false)}
+            className="mt-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer w-full max-w-[200px]"
+          >
+            Assumir a Culpa 😔
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
