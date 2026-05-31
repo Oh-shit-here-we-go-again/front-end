@@ -11,7 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useFamilies } from "@/hooks/useFamilies";
-import { AlertCircle, ChevronLeft, Home, UserPlus, Users } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { AlertCircle, ChevronLeft, Home, UserPlus, Users, Crown, Trash2, UserMinus } from "lucide-react";
+import { toast } from "sonner";
 
 export default function FamiliesPage() {
   const {
@@ -26,13 +28,18 @@ export default function FamiliesPage() {
     createFamily,
     joinFamily,
     leaveFamily,
+    transferOwnership,
+    deleteFamily,
+    removeMember,
     resetSelectedFamily,
   } = useFamilies();
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"public" | "my">("public");
 
-  // Placeholder: idealmente viria do backend (ex: /me/families)
-  const myFamilies = families.filter((f) => f.owner); // Ajustar com dados reais
+  // Filtra as famílias para mostrar apenas a que o usuário pertence
+  const userFamilyId = typeof user?.family === "object" && user?.family ? (user.family as any).id : user?.family;
+  const myFamilies = families.filter((f) => f.id === userFamilyId);
 
   // CreateFamilyModal / JoinFamilyModal esperam Promise<void>
   const createFamilyVoid = async (name: string): Promise<void> => {
@@ -44,6 +51,28 @@ export default function FamiliesPage() {
   };
 
   if (selectedFamily) {
+    const ownerId = typeof selectedFamily.owner === "object" && selectedFamily.owner
+      ? (selectedFamily.owner as any).id
+      : selectedFamily.owner;
+    const isOwner = ownerId === user?.id;
+    const isAlone = familyMembers.length <= 1;
+
+    const handleLeaveOrDelete = async () => {
+      if (isOwner) {
+        if (isAlone) {
+          if (confirm("⚠️ Tem certeza que deseja EXCLUIR esta família? Todos os registros serão perdidos e o grupo deixará de existir.")) {
+            await deleteFamily();
+          }
+        } else {
+          toast.error("👑 Você é o dono da família e ainda há outros membros! Transfira a liderança ou remova os membros antes de sair.");
+        }
+      } else {
+        if (confirm("💔 Tem certeza que deseja sair desta família?")) {
+          await leaveFamily();
+        }
+      }
+    };
+
     return (
       <div className="container max-w-4xl mx-auto p-4 space-y-6">
         <div className="flex items-center gap-4">
@@ -80,11 +109,20 @@ export default function FamiliesPage() {
           <Button
             variant="destructive"
             size="sm"
-            onClick={leaveFamily}
+            onClick={handleLeaveOrDelete}
             className="gap-2"
           >
-            <UserPlus className="size-4 rotate-180" />
-            Sair da Família
+            {isOwner && isAlone ? (
+              <>
+                <Trash2 className="size-4" />
+                Excluir Família
+              </>
+            ) : (
+              <>
+                <UserPlus className="size-4 rotate-180" />
+                Sair da Família
+              </>
+            )}
           </Button>
         </div>
 
@@ -107,25 +145,71 @@ export default function FamiliesPage() {
                     .toUpperCase()
                     .slice(0, 2);
 
+                  const isMemberOwner = member.id === ownerId;
+
                   return (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50"
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary/50 group"
                     >
-                      <div className="size-10 rounded-full bg-poop/20 flex items-center justify-center text-poop font-bold">
-                        {initials}
+                      <div className="flex items-center gap-3">
+                        <div className="size-10 rounded-full bg-poop/20 flex items-center justify-center text-poop font-bold relative">
+                          {initials}
+                          {isMemberOwner && (
+                            <span className="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full p-0.5" title="Dono da Família">
+                              <Crown className="size-3" />
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="font-medium flex items-center gap-1.5">
+                            {member.first_name
+                              ? `${member.first_name} ${member.last_name || ""}`.trim()
+                              : member.username}
+                            {member.id === user?.id && (
+                              <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-normal">
+                                Você
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            @{member.username}
+                          </p>
+                        </div>
                       </div>
 
-                      <div>
-                        <p className="font-medium">
-                          {member.first_name
-                            ? `${member.first_name} ${member.last_name || ""}`.trim()
-                            : member.username}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          @{member.username}
-                        </p>
-                      </div>
+                      {/* Ações do Dono */}
+                      {isOwner && member.id !== user?.id && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 rounded-full"
+                            title="Transferir liderança (Passar a coroa)"
+                            onClick={() => {
+                              if (confirm(`👑 Tem certeza que deseja transferir a coroa (liderança) para @${member.username}?`)) {
+                                transferOwnership(member.id);
+                              }
+                            }}
+                          >
+                            <Crown className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-destructive hover:bg-destructive/10 rounded-full"
+                            title="Remover da família (Expulsar)"
+                            onClick={() => {
+                              if (confirm(`🚽 Tem certeza que deseja remover @${member.username} da família?`)) {
+                                removeMember(member.id);
+                              }
+                            }}
+                          >
+                            <UserMinus className="size-4" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -161,8 +245,14 @@ export default function FamiliesPage() {
           onCreate={createFamilyVoid}
           isCreating={isCreating}
         />
-        <JoinFamilyModal onJoin={joinFamilyVoid} isJoining={isJoining} />
+        <JoinFamilyModal onJoin={joinFamilyVoid} isJoining={isJoining} disabled={!!userFamilyId} />
       </div>
+
+      {userFamilyId && (
+        <p className="text-center text-xs text-amber-600 dark:text-amber-500 font-bold max-w-sm sm:max-w-md mx-auto mt-2 leading-relaxed bg-amber-500/5 border border-amber-500/10 rounded-xl p-3">
+          🔒 Seu traseiro já tem dono! Você já está em uma família. A entrada via código foi bloqueada. Para trocar de ares, crie seu próprio grupo.
+        </p>
+      )}
 
       <div className="mt-6">
         <div className="flex items-center justify-center gap-3">
@@ -173,7 +263,7 @@ export default function FamiliesPage() {
             className="gap-2"
           >
             <Users className="size-4" />
-            Salas Públicas
+            Grupos Públicos
           </Button>
           <Button
             type="button"
@@ -182,7 +272,7 @@ export default function FamiliesPage() {
             className="gap-2"
           >
             <Home className="size-4" />
-            Minhas Salas
+            Meus Grupos
           </Button>
         </div>
 
@@ -224,10 +314,12 @@ export default function FamiliesPage() {
                     key={family.id}
                     family={family}
                     members={[]}
+                    isUserFamily={family.id === userFamilyId}
                     onViewDetails={fetchFamilyDetails}
                     onJoin={joinFamilyVoid}
-                    showJoinButton
-                    showCopyCode
+                    showJoinButton={false}
+                    showCopyCode={family.id === userFamilyId}
+                    currentUserId={user?.id}
                   />
                 ))}
               </div>
@@ -243,7 +335,8 @@ export default function FamiliesPage() {
                   isUserFamily
                   onViewDetails={fetchFamilyDetails}
                   showJoinButton={false}
-                  showCopyCode={false}
+                  showCopyCode={true}
+                  currentUserId={user?.id}
                 />
               ))}
             </div>

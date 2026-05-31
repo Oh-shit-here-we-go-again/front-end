@@ -23,7 +23,6 @@ interface FeedPostProps {
     userDetails?: { username: string; avatar_url?: string };
   };
   onLike: (id: string, currentLikes: number) => Promise<void>;
-  onRating: (id: string, rating: number) => Promise<void>;
   onComment?: (id: string) => void;
 }
 
@@ -46,10 +45,8 @@ const POOP_PHRASES = [
 export function FeedPost({
   session,
   onLike,
-  onRating,
   onComment,
 }: FeedPostProps) {
-  const [userRating, setUserRating] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
   const [revealDialogOpen, setRevealDialogOpen] = useState(false);
 
@@ -74,17 +71,10 @@ export function FeedPost({
     setIsRevealed(true);
   };
 
-  const handleRatingSubmit = async (rating: number) => {
-    setUserRating(rating);
-    await onRating(session.id, rating);
-  };
-
   const phraseIndex = session.id
     ? session.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % POOP_PHRASES.length
     : 0;
   const funnyNote = POOP_PHRASES[phraseIndex];
-
-  const currentRatingValue = session.review?.rating || userRating;
 
   return (
     <>
@@ -102,10 +92,6 @@ export function FeedPost({
               {session.userDetails?.username || "Cagão Anônimo"}
             </p>
             <p className="text-xs text-muted-foreground">Refluxo Tech · {timeAgo}</p>
-          </div>
-          <div className="flex items-center gap-1 bg-amber-500/10 text-poop border border-amber-500/20 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm">
-            <span>💩</span>
-            <span>{currentRatingValue ? currentRatingValue.toFixed(1) : "?.?"}</span>
           </div>
         </CardHeader>
 
@@ -164,24 +150,7 @@ export function FeedPost({
           </p>
         </div>
 
-        {/* Avalie esta obra */}
-        <div className="px-6 py-3 border-t border-border/35 bg-card/20 flex items-center justify-between">
-          <span className="text-xs font-bold text-muted-foreground">Avalie esta obra:</span>
-          <div className="flex items-center gap-1.5">
-            {[1, 2, 3, 4, 5].map((r) => (
-              <button
-                key={r}
-                onClick={() => handleRatingSubmit(r)}
-                className={cn(
-                  "text-xl transition-all hover:scale-125 cursor-pointer",
-                  currentRatingValue >= r ? "opacity-100 filter drop-shadow" : "opacity-30 grayscale"
-                )}
-              >
-                💩
-              </button>
-            ))}
-          </div>
-        </div>
+
 
         {/* Action buttons */}
         <CardFooter className="flex justify-around border-t border-border/30 py-2.5 bg-secondary/5">

@@ -18,12 +18,14 @@ interface JoinFamilyModalProps {
   onJoin: (code: string) => Promise<void>;
   isJoining: boolean;
   trigger?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export function JoinFamilyModal({
   onJoin,
   isJoining,
   trigger,
+  disabled = false,
 }: JoinFamilyModalProps) {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
@@ -35,7 +37,7 @@ export function JoinFamilyModal({
       setError("Cola o código de convite aí, fio!");
       return;
     }
-    const cleanCode = code.trim().toUpperCase();
+    const cleanCode = code.trim();
     if (cleanCode.length < 6) {
       setError("Código muito curto! Tá tentando entrar de fininho?");
       return;
@@ -50,7 +52,12 @@ export function JoinFamilyModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" className="gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={disabled}
+            title={disabled ? "Você já possui um grupo. Crie um novo grupo para poder trocar de equipe!" : undefined}
+          >
             <LogIn className="size-4" />
             Entrar com Código
           </Button>
@@ -71,7 +78,7 @@ export function JoinFamilyModal({
               id="invite-code"
               placeholder="Ex: SHITGO2024"
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onChange={(e) => setCode(e.target.value)}
               className="font-mono text-center tracking-wider text-lg"
               maxLength={12}
             />

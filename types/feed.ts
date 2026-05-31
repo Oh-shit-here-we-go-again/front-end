@@ -12,6 +12,7 @@ export interface BathroomSession {
   comment_count: string; // string conforme API
   created_at: string;
   likedByUser?: boolean;
+  review?: Review | null;
 }
 
 export interface FeedResponse {

@@ -3,7 +3,7 @@ export interface Family {
   id: string; // uuid
   name: string;
   invite_code: string;
-  owner: string; // user id (string per API.yaml)
+  owner: string | { id: string; username: string; avatar_url?: string }; // user id or user object
   member_count: string; // API.yaml says string (readOnly)
   created_at: string;
 }

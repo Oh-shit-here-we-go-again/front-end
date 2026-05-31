@@ -1,7 +1,7 @@
 // lib/api.ts
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://psephological-trigonally-gaynelle.ngrok-free.dev/api";
+  "https://veronique-maniform-nonboastingly.ngrok-free.dev/api";
 
 export type RequestOptions = RequestInit & {
   requiresAuth?: boolean;

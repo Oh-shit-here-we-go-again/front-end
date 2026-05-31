@@ -24,10 +24,17 @@ export const familyService = {
   joinFamily: (data: JoinFamilyRequest) =>
     api.post<Family>("/families/join/", data),
 
-  // Endpoint "leave" não existe no API.yaml. Mantemos assinatura, mas o hook não deve depender disso.
-  // Se o backend tiver, continua funcionando; se não tiver, vai falhar e o hook vai tratar.
-  leaveFamily: (familyId: string) =>
-    api.delete<unknown>(`/families/${familyId}/leave/`),
+  leaveFamily: () =>
+    api.post<unknown>("/families/leave/", {}),
+
+  transferOwnership: (familyId: string, userId: string) =>
+    api.post<Family>(`/families/${familyId}/transfer/`, { user_id: userId }),
+
+  deleteFamily: (familyId: string) =>
+    api.delete<unknown>(`/families/${familyId}/`),
+
+  removeMember: (familyId: string, userId: string) =>
+    api.post<unknown>(`/families/${familyId}/remove_member/`, { user_id: userId }),
 
   // /api/families/{id}/members/ → no YAML referencia Family, mas UI usa FamilyMember.
   getFamilyMembers: (familyId: string) =>

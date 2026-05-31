@@ -131,13 +131,13 @@ export function Header() {
                   href="/login"
                   className="text-xs font-bold hover:text-poop transition-colors px-3 py-2"
                 >
-                  Entrar
+                  Acessar Trono
                 </Link>
                 <Link
                   href="/register"
                   className="bg-poop hover:bg-poop/90 text-white text-xs font-black px-4 py-2 rounded-full shadow-sm transition-all whitespace-nowrap"
                 >
-                  Cadastrar
+                  Monetizar Caca 💰
                 </Link>
               </>
             )}

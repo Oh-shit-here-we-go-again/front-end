@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { feedService } from "@/services/feedService";
 import { likeService } from "@/services/likeService";
-import { reviewService } from "@/services/reviewService";
 import { BathroomSession } from "../types/feed";
 
 interface UseFeedReturn {
@@ -15,7 +14,6 @@ interface UseFeedReturn {
   hasMore: boolean;
   loadMore: () => Promise<void>;
   toggleLike: (sessionId: string, currentLikes: number) => Promise<void>;
-  submitRating: (sessionId: string, rating: number) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -102,19 +100,6 @@ export function useFeed(): UseFeedReturn {
     [],
   );
 
-  const submitRating = useCallback(
-    async (sessionId: string, rating: number) => {
-      try {
-        await reviewService.createReview({ session: sessionId, rating });
-        toast.success(
-          `💩 Você avaliou com ${rating} 💩! Obrigado pelo feedback fedorento.`,
-        );
-      } catch (error) {
-        toast.error("💨 Falha ao enviar avaliação. O sistema deu uma peidada.");
-      }
-    },
-    [],
-  );
 
   // Efeito de montagem: chama refresh de forma segura (sem warning)
   useEffect(() => {
@@ -137,7 +122,6 @@ export function useFeed(): UseFeedReturn {
     hasMore,
     loadMore,
     toggleLike,
-    submitRating,
     refresh,
   };
 }

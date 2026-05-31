@@ -35,6 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -52,7 +53,7 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes"
         />
       </head>
-      <body className="min-h-full flex flex-col pb-24 sm:pb-0">
+      <body className="min-h-full flex flex-col pb-24 sm:pb-0" suppressHydrationWarning>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

@@ -16,4 +16,5 @@ export type User = {
   monthly_salary?: number;
   avatar_url?: string;
   points_balance?: number;
+  family?: string | { id: string; name: string; invite_code: string };
 };
