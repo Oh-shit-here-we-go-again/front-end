@@ -18,6 +18,7 @@ import { ReviewDialog } from "./ReviewDialog";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BathroomSession } from "../../types/feed";
+import { getProxiedImageUrl } from "@/lib/media";
 
 interface FeedPostProps {
   session: BathroomSession & {
@@ -84,7 +85,7 @@ export function FeedPost({
         {/* Header */}
         <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-3">
           <Avatar className="size-10 border border-border/60">
-            <AvatarImage src={session.userDetails?.avatar_url} />
+            <AvatarImage src={getProxiedImageUrl(session.userDetails?.avatar_url)} />
             <AvatarFallback className="bg-poop/15 text-poop font-bold">
               {session.userDetails?.username?.slice(0, 2).toUpperCase() || "??"}
             </AvatarFallback>
@@ -129,7 +130,7 @@ export function FeedPost({
             )}
           >
             <img
-              src={session.photo_url || "/placeholder.jpg"}
+              src={getProxiedImageUrl(session.photo_url) || "/placeholder.jpg"}
               alt="Sessão no trono"
               className="w-full h-full object-cover"
             />

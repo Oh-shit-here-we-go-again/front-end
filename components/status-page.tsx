@@ -1,8 +1,6 @@
 "use client";
 
-// app/components/status-page.tsx
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 
 // Tipo para os códigos de status HTTP
@@ -155,13 +153,12 @@ export function StatusPage({
 
         {/* GIF próprio do status */}
         <div className="rounded-2xl overflow-hidden border-4 border-poop/20 shadow-xl bg-muted/20">
-          <Image
+          <img
             src={finalImageUrl}
             alt={`GIF ilustrando: ${finalTitle}`}
             width={400}
             height={300}
             className="w-full h-auto object-cover"
-            unoptimized // GIPHY URLs já são otimizadas
           />
         </div>
 

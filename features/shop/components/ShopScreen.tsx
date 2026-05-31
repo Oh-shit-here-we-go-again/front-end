@@ -8,6 +8,13 @@ import { ShopItem, Order } from "../types/shop.types";
 import { useAuth } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { User } from "@/types/User";
+import { getProxiedImageUrl } from "@/lib/media";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function ShopScreen() {
   const { user, updateUser } = useAuth();
@@ -15,6 +22,7 @@ export function ShopScreen() {
   const [userCoins, setUserCoins] = useState(0);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [loadingItems, setLoadingItems] = useState(true);
 
   // Orders state
@@ -67,6 +75,7 @@ export function ShopScreen() {
     const result = await shopService.buyItem(item.id, userCoins);
     setSuccess(result.success);
     setMessage(result.message);
+    setModalOpen(true);
     
     if (result.success) {
       setUserCoins(result.newCoins);
@@ -131,17 +140,7 @@ export function ShopScreen() {
         </button>
       </div>
 
-      {/* Message Banner */}
-      {message && (
-        <div className={`mb-6 p-4 rounded-xl border text-xs font-bold flex items-start gap-2.5 ${
-          success 
-            ? "bg-green-500/10 border-green-500/30 text-green-600" 
-            : "bg-red-500/10 border-red-500/30 text-red-500"
-        }`}>
-          <CheckCircle className="size-4 shrink-0 mt-0.5" />
-          <span>{message}</span>
-        </div>
-      )}
+
 
       {/* Tabs Content */}
       {activeTab === "store" ? (
@@ -157,7 +156,7 @@ export function ShopScreen() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="bg-secondary/60 size-14 rounded-2xl flex items-center justify-center border border-gold/10 overflow-hidden">
                       {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="size-full object-cover" />
+                        <img src={getProxiedImageUrl(item.image_url)} alt={item.name} className="size-full object-cover" />
                       ) : (
                         <span className="text-3xl">{item.emoji}</span>
                       )}
@@ -240,6 +239,39 @@ export function ShopScreen() {
           </div>
         )
       )}
+
+      {/* Funny Shop Purchase Modal */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-md p-6 rounded-3xl border-4 border-primary/25 bg-gradient-to-b from-card to-background shadow-2xl overflow-hidden text-center flex flex-col items-center justify-center gap-4">
+          <DialogHeader className="pb-2 border-b border-border/40 w-full shrink-0">
+            <DialogTitle className="text-xl font-black text-foreground flex items-center justify-center gap-2">
+              {success ? "🎉 A descarga deu merge! 🚽" : "⚠️ Entupiu a transação! 🧻"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="text-6xl animate-bounce my-2">
+            {success ? "💩💼✨" : "💸😩💩"}
+          </div>
+
+          <p className="text-sm font-bold text-foreground/90 max-w-sm leading-relaxed px-2">
+            {message}
+          </p>
+
+          <p className="text-xxs text-muted-foreground/80 italic max-w-xs leading-relaxed px-4">
+            {success 
+              ? "O sommelier de opiniões e a gerência do banheiro parabenizam você por essa aquisição de extrema elegância intestinal."
+              : "Vá correndo fazer mais cagadas produtivas para acumular mais Cocoins e tentar novamente. O trono não espera!"
+            }
+          </p>
+
+          <button
+            onClick={() => setModalOpen(false)}
+            className="mt-2 px-6 py-2.5 bg-primary text-primary-foreground font-black text-xs rounded-xl hover:opacity-90 shadow-md transition-all cursor-pointer w-full max-w-[200px]"
+          >
+            {success ? "Sensacional! 🚽" : "Entendido 🧻"}
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
