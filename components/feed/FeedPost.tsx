@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, Star } from "lucide-react";
+import { Heart, MessageCircle, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlurRevealDialog } from "./BlurRevealDialog";
 import { ReviewDialog } from "./ReviewDialog";
@@ -213,10 +213,6 @@ export function FeedPost({
           >
             <MessageCircle className="size-4 text-muted-foreground" />
             <span>{session.comment_count}</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-2 text-xs font-bold cursor-pointer hover:bg-poop/10 hover:text-poop">
-            <Share2 className="size-4 text-muted-foreground" />
-            <span>Espalhar</span>
           </Button>
         </CardFooter>
       </Card>
