@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { Family, FamilyMember } from "../../types/family";
+import { getProxiedImageUrl } from "@/lib/media";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
@@ -62,7 +63,7 @@ export function FamilyCard({
   const ownerId = typeof family.owner === "object" && family.owner ? (family.owner as any).id : family.owner;
 
   const avatarUrls = (members ?? []).slice(0, 5).map((m) => ({
-    imageUrl: m.avatar_url || "/default-avatar.png",
+    imageUrl: getProxiedImageUrl(m.avatar_url) || "/default-avatar.png",
     profileUrl: `/profile/${m.id}`,
   }));
 

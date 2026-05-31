@@ -7,6 +7,7 @@ import { Crown, Medal, TrendingUp, Coins } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { FamilyMember } from "../../types/family";
+import { getProxiedImageUrl } from "@/lib/media";
 
 interface FamilyRankingProps {
   members: FamilyMember[];
@@ -96,7 +97,7 @@ export function FamilyRanking({ members, products = [] }: FamilyRankingProps) {
 
                   return (
                     <Avatar className="size-10">
-                      <AvatarImage src={avatarUrl} />
+                      <AvatarImage src={getProxiedImageUrl(avatarUrl)} />
                       <AvatarFallback className="bg-poop/20 text-poop">
                         {initials}
                       </AvatarFallback>

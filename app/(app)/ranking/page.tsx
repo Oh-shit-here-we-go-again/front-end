@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { shopService } from "@/features/shop/services/shopService";
 import Link from "next/link";
+import { getProxiedImageUrl } from "@/lib/media";
 
 export default function RankingPage() {
   const { user } = useAuth();
@@ -134,7 +135,7 @@ export default function RankingPage() {
           earnings: parseFloat(item.total_earnings),
           sessions: item.total_sessions,
           rank: item.rank_position || index + 1,
-          avatarUrl: avatarUrl,
+          avatarUrl: getProxiedImageUrl(avatarUrl),
           detail: "Global",
           points: item.points || 0,
         };
@@ -150,7 +151,7 @@ export default function RankingPage() {
           earnings: parseFloat(item.earnings || "0"),
           sessions: undefined, // family ranking API might not have sessions count
           rank: index + 1,
-          avatarUrl: avatarUrl,
+          avatarUrl: getProxiedImageUrl(avatarUrl),
           detail: "Meu Grupo",
           points: item.points_balance || 0,
         };

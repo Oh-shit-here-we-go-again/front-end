@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { AlertCircle, ChevronLeft, Home, UserPlus, Users, Crown, Trash2, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { shopService } from "@/features/shop/services/shopService";
+import { getProxiedImageUrl } from "@/lib/media";
 
 export default function FamiliesPage() {
   const {
@@ -169,7 +170,7 @@ export default function FamiliesPage() {
                         <div className="size-10 rounded-full bg-poop/20 flex items-center justify-center text-poop font-bold relative overflow-hidden">
                           {avatarUrl ? (
                             <img
-                              src={avatarUrl}
+                              src={getProxiedImageUrl(avatarUrl)}
                               alt={member.username}
                               className="size-full object-cover"
                             />
