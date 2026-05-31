@@ -1,15 +1,26 @@
-
 import { AuthProvider } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { Atkinson_Hyperlegible, Geist, Geist_Mono, Inter, Lexend } from "next/font/google";
+import {
+  Atkinson_Hyperlegible,
+  Geist,
+  Geist_Mono,
+  Inter,
+  Lexend,
+} from "next/font/google";
 import "./globals.css";
-
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const lexend = Lexend({ subsets: ["latin"], variable: "--font-lexend" });
-const atkinson = Atkinson_Hyperlegible({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-atkinson" });
+const atkinson = Atkinson_Hyperlegible({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-atkinson",
+});
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata = {
   title: "Shit Go",
@@ -35,10 +46,14 @@ export default function RootLayout({
         inter.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes"
+        />
+      </head>
+      <body className="min-h-full flex flex-col pb-24 sm:pb-0">
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
