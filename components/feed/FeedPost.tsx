@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BlurRevealDialog } from "./BlurRevealDialog";
+import { ReviewDialog } from "./ReviewDialog";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BathroomSession } from "../../types/feed";
@@ -49,6 +50,7 @@ export function FeedPost({
 }: FeedPostProps) {
   const [isRevealed, setIsRevealed] = useState(false);
   const [revealDialogOpen, setRevealDialogOpen] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 
   const duration = session.duration_seconds
     ? `${Math.floor(session.duration_seconds / 60)}min ${session.duration_seconds % 60}s`
@@ -143,14 +145,48 @@ export function FeedPost({
         </div>
 
         {/* Description/Note */}
-        <div className="px-6 py-4 text-sm text-foreground/90 leading-relaxed">
+        <div className="px-6 py-4 text-sm text-foreground/90 leading-relaxed flex flex-col gap-3">
           <p>
             <span className="font-extrabold mr-1.5 text-foreground">{session.userDetails?.username || "Cagão"}</span>
             {funnyNote}
           </p>
+
+          {/* Sommelier Review Status */}
+          {session.review && (
+            <div className="mt-1 flex items-center justify-between bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-base select-none">🍷</span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black tracking-wider uppercase text-amber-700 dark:text-amber-400 font-mono">
+                    Sommelier de Dejetos
+                  </span>
+                  <span className="text-xxs text-muted-foreground flex gap-1 items-center">
+                    {session.review.status === "completed" && (
+                      <>
+                        Nota:{" "}
+                        <span className="tracking-tighter">
+                          {"💩".repeat(session.review.rating || 0)}
+                        </span>
+                      </>
+                    )}
+                    {session.review.status === "pending" && "Dr. Cléber está decantando a safra..."}
+                    {session.review.status === "failed" && "O sommelier passou mal."}
+                  </span>
+                </div>
+              </div>
+              {session.review.status === "completed" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-[10px] font-black border-amber-500/30 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-xl cursor-pointer shadow-sm"
+                  onClick={() => setReviewDialogOpen(true)}
+                >
+                  Ver Laudo
+                </Button>
+              )}
+            </div>
+          )}
         </div>
-
-
 
         {/* Action buttons */}
         <CardFooter className="flex justify-around border-t border-border/30 py-2.5 bg-secondary/5">
@@ -189,6 +225,12 @@ export function FeedPost({
         onOpenChange={setRevealDialogOpen}
         onConfirm={handleReveal}
         photoUrl={session.photo_url}
+      />
+
+      <ReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        sessionId={session.id}
       />
     </>
   );
