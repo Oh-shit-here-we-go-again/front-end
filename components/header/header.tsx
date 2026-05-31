@@ -27,6 +27,9 @@ import {
   LogOut as LogOutIcon,
   Menu as MenuIcon,
   Plus,
+  TrendingUp,
+  Store,
+  Users,
 } from "lucide-react";
 
 export function Header() {
@@ -38,6 +41,9 @@ export function Header() {
     (item) => !item.authRequired || (item.authRequired && user),
   );
 
+  // Quais links ficam visíveis no dock principal do mobile (para não quebrar o layout)
+  const mobileDockHrefs = ["/", "/dashboard", "/feed", "/profile"];
+
   const displayName = user?.first_name
     ? `${user.first_name} ${user.last_name || ""}`.trim()
     : user?.username || "Cagão";
@@ -45,7 +51,7 @@ export function Header() {
   return (
     <>
       {/* Top Header: Branding & Authentication status */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/60 backdrop-blur-md border-b border-border/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-sm">
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/60 backdrop-blur-md border-b border-border/80 px-3 sm:px-6 lg:px-8 flex items-center justify-between shadow-sm">
         <TooltipProvider>
           {/* Lado Esquerdo: Moedas no Mobile OU Logo no Desktop */}
           {user ? (
@@ -53,10 +59,13 @@ export function Header() {
               {/* Moedas no Mobile (escondidas no desktop) */}
               <Link
                 href="/lojinha"
-                className="inline-flex sm:hidden items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-black text-amber-700 dark:text-amber-300 shadow-sm transition-all animate-fade-in cursor-pointer"
+                className="inline-flex sm:hidden items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-black text-amber-700 dark:text-amber-300 shadow-sm transition-all animate-fade-in cursor-pointer"
               >
-                <Coins className="size-4 text-amber-600 dark:text-amber-400 animate-bounce" />
-                <span>{user.points_balance || 0} Cocoins</span>
+                <Coins className="size-3.5 text-amber-600 dark:text-amber-400 animate-bounce" />
+                <span>
+                  {user.points_balance || 0}
+                  <span className="hidden min-[370px]:inline"> Cocoins</span>
+                </span>
               </Link>
 
               {/* Logo no Desktop (escondido no mobile) */}
@@ -75,12 +84,12 @@ export function Header() {
           ) : (
             <Link
               href="/"
-              className="flex items-center gap-2 select-none group"
+              className="flex items-center gap-1.5 select-none group"
             >
-              <span className="text-2xl transition-transform group-hover:scale-110">
+              <span className="text-xl sm:text-2xl transition-transform group-hover:scale-110">
                 💩
               </span>
-              <span className="font-black text-lg tracking-tight bg-gradient-to-r from-poop via-accent to-gold bg-clip-text text-transparent">
+              <span className="font-black text-base sm:text-lg tracking-tight bg-gradient-to-r from-poop via-accent to-gold bg-clip-text text-transparent">
                 Shitgo
               </span>
             </Link>
@@ -100,16 +109,19 @@ export function Header() {
           )}
 
           {/* Lado Direito: Botão de Bater Ponto (Mobile) / Moedas e Perfil (Desktop) OR Botões de Auth (Visitante) */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-4">
             {user ? (
               <>
                 {/* Botão de Bater Ponto (Cagar) - Apenas no Mobile */}
                 <Link
                   href="/sessions/start"
-                  className="inline-flex sm:hidden items-center gap-2 bg-primary text-primary-foreground font-bold px-4 py-2 rounded-2xl hover:bg-primary/95 transition-all shadow-md cursor-pointer text-xs whitespace-nowrap animate-fade-in"
+                  className="inline-flex sm:hidden items-center gap-1.5 bg-primary text-primary-foreground font-bold px-3 py-1.5 rounded-xl hover:bg-primary/95 transition-all shadow-md cursor-pointer text-xs whitespace-nowrap animate-fade-in"
                 >
-                  <Plus className="size-4" />
-                  <span>Bater Ponto (Cagar)</span>
+                  <Plus className="size-3.5" />
+                  <span>
+                    Bater Ponto
+                    <span className="hidden min-[400px]:inline"> (Cagar)</span>
+                  </span>
                 </Link>
 
                 {/* Pílula de Cocôins (Apenas Desktop) */}
@@ -130,15 +142,17 @@ export function Header() {
               <>
                 <Link
                   href="/login"
-                  className="text-xs font-bold hover:text-poop transition-colors px-3 py-2"
+                  className="text-xs font-bold hover:text-poop transition-colors px-2 py-1.5 whitespace-nowrap"
                 >
-                  Acessar Trono
+                  <span className="hidden sm:inline">Acessar Trono</span>
+                  <span className="sm:hidden">Entrar</span>
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-poop hover:bg-poop/90 text-white text-xs font-black px-4 py-2 rounded-full shadow-sm transition-all whitespace-nowrap"
+                  className="bg-poop hover:bg-poop/90 text-white text-xs font-black px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-sm transition-all whitespace-nowrap"
                 >
-                  Monetizar Caca 💰
+                  <span className="hidden sm:inline">Monetizar Caca 💰</span>
+                  <span className="sm:hidden">Cadastrar 💰</span>
                 </Link>
               </>
             )}
@@ -147,18 +161,22 @@ export function Header() {
       </header>
 
       {/* Floating Bottom Dock Navigation: MagicUI Dock Implementation */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto max-w-[95vw]">
         <TooltipProvider>
           <Dock
             direction="middle"
-            className="border border-border/80 bg-background/80 backdrop-blur-md shadow-xl rounded-2xl px-4 py-2 flex items-center justify-center gap-1"
+            className="border border-border/80 bg-background/80 backdrop-blur-md shadow-xl rounded-2xl px-2 sm:px-4 py-2 flex items-center justify-center gap-1 sm:gap-2"
           >
             {filteredNavItems.map((item) => {
               const isActive = pathname === item.href;
+              const isVisibleOnMobile = mobileDockHrefs.includes(item.href);
               return (
                 <DockIcon
                   key={item.label}
-                  className="flex items-center justify-center"
+                  className={cn(
+                    "flex items-center justify-center",
+                    !isVisibleOnMobile && "hidden sm:flex",
+                  )}
                 >
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -173,7 +191,11 @@ export function Header() {
                         )}
                       >
                         {item.href === "/profile" && user?.avatar_url ? (
-                          <img src={getProxiedImageUrl(user.avatar_url)} alt={item.label} className="size-full object-cover" />
+                          <img
+                            src={getProxiedImageUrl(user.avatar_url)}
+                            alt={item.label}
+                            className="size-full object-cover"
+                          />
                         ) : (
                           <item.icon className="size-5 shrink-0" />
                         )}
@@ -207,7 +229,7 @@ export function Header() {
                   <DropdownMenuContent
                     align="end"
                     side="top"
-                    className="w-48 mb-3 bg-popover border border-border p-2 rounded-2xl shadow-xl z-50"
+                    className="w-48 mb-3 bg-popover border border-border p-2 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-200"
                   >
                     <div className="px-3 py-1.5 text-[10px] text-muted-foreground border-b border-border/60 mb-1">
                       Logado como{" "}
@@ -215,6 +237,35 @@ export function Header() {
                         @{user.username}
                       </span>
                     </div>
+
+                    {/* Links secundários que foram omitidos no Dock principal do mobile */}
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/ranking"
+                        className="flex items-center gap-2 cursor-pointer text-xs font-bold p-2 hover:bg-poop/10 rounded-lg"
+                      >
+                        <TrendingUp className="size-4 text-poop" /> Ranking
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/lojinha"
+                        className="flex items-center gap-2 cursor-pointer text-xs font-bold p-2 hover:bg-poop/10 rounded-lg"
+                      >
+                        <Store className="size-4 text-poop" /> shoPum
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/families"
+                        className="flex items-center gap-2 cursor-pointer text-xs font-bold p-2 hover:bg-poop/10 rounded-lg"
+                      >
+                        <Users className="size-4 text-poop" /> Famílias
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <div className="h-px bg-border my-1" />
+
                     <DropdownMenuItem
                       onClick={logout}
                       className="flex items-center gap-2 cursor-pointer text-xs font-bold p-2 text-red-600 hover:bg-red-500/10 rounded-lg"
