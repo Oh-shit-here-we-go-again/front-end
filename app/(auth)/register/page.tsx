@@ -46,7 +46,7 @@ export default function RegisterPage() {
       };
       
       await register(registerData);
-      window.location.href = "/dashboard";
+      window.location.href = "/login?registered=true";
     } catch (err: any) {
       setError(getDramaticErrorMessage(err));
     } finally {

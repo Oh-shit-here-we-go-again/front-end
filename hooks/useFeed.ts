@@ -25,17 +25,14 @@ export function useFeed(): UseFeedReturn {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const isMounted = useRef(true);
-
   const fetchFeed = useCallback(async (pageNum: number, append = false) => {
     try {
       const response = await feedService.getFeed(pageNum);
-      const newSessions = response.results.map((session) => ({
+      const newSessions = response.results.map((session: any) => ({
         ...session,
+        photo_url: session.photo || session.photo_url,
         likedByUser: false, // inicializa como false; depois o backend pode informar se já curtiu
       }));
-
-      if (!isMounted.current) return;
 
       if (append) {
         setSessions((prev) => [...prev, ...newSessions]);
@@ -75,12 +72,12 @@ export function useFeed(): UseFeedReturn {
           prev.map((s) =>
             s.id === sessionId
               ? {
-                  ...s,
-                  like_count: String(
-                    Number(s.like_count) + (s.likedByUser ? -1 : 1),
-                  ),
-                  likedByUser: !s.likedByUser,
-                }
+                ...s,
+                like_count: String(
+                  Number(s.like_count) + (s.likedByUser ? -1 : 1),
+                ),
+                likedByUser: !s.likedByUser,
+              }
               : s,
           ),
         );
@@ -92,10 +89,10 @@ export function useFeed(): UseFeedReturn {
           prev.map((s) =>
             s.id === sessionId
               ? {
-                  ...s,
-                  like_count: String(currentLikes),
-                  likedByUser: !s.likedByUser,
-                }
+                ...s,
+                like_count: String(currentLikes),
+                likedByUser: !s.likedByUser,
+              }
               : s,
           ),
         );
@@ -129,7 +126,6 @@ export function useFeed(): UseFeedReturn {
     loadInitial();
     return () => {
       active = false;
-      isMounted.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refresh é estável, mas ignoramos dependência para evitar loop

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import {
   Coins,
-  Accessibility,
   Clock,
   Info,
 } from "lucide-react";
@@ -12,7 +11,6 @@ import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { Ripple } from "@/components/ui/ripple";
 import { ScrollVelocityContainer, ScrollVelocityRow } from "@/components/ui/scroll-based-velocity";
-import { cn } from "@/lib/utils";
 
 // Landing components
 import { Header } from "@/components/header/header";
@@ -31,9 +29,6 @@ interface PoopParticle {
 }
 
 export default function Home() {
-  // Accessibility Font Family State
-  const [font, setFont] = useState<"sans" | "lexend" | "atkinson">("lexend");
-
   // Calculator States
   const [salary, setSalary] = useState<number>(3500);
   const [weeklyHours, setWeeklyHours] = useState<number>(44);
@@ -74,12 +69,7 @@ export default function Home() {
     <>
       <Header />
       <div
-        className={cn(
-          "min-h-screen pb-24 pt-28 px-4 sm:px-6 lg:px-8 bg-background text-foreground transition-all duration-300 relative overflow-hidden",
-          font === "lexend" && "font-lexend",
-          font === "atkinson" && "font-atkinson",
-          font === "sans" && "font-sans"
-        )}
+        className="min-h-screen pb-24 pt-28 px-4 sm:px-6 lg:px-8 bg-background text-foreground transition-all duration-300 relative overflow-hidden"
       >
       {/* Poop rain container */}
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
@@ -107,57 +97,7 @@ export default function Home() {
 
       <div className="max-w-6xl mx-auto relative z-10">
         
-        {/* Visual Accessibility Controls */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-card/60 backdrop-blur-md border border-border/80 shadow-md mb-10"
-        >
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-xl text-primary shrink-0">
-              <Accessibility className="size-5" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold">Acessibilidade e Leitura</h4>
-              <p className="text-xs text-muted-foreground hidden sm:block">Escolha a fonte que reduz seu estresse visual</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => setFont("sans")}
-              className={cn(
-                "flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer",
-                font === "sans"
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-background/80 border-border hover:bg-muted text-foreground"
-              )}
-            >
-              Padrão
-            </button>
-            <button
-              onClick={() => setFont("lexend")}
-              className={cn(
-                "flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs font-bold rounded-xl border transition-all font-lexend cursor-pointer",
-                font === "lexend"
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-background/80 border-border hover:bg-muted text-foreground"
-              )}
-            >
-              Lexend
-            </button>
-            <button
-              onClick={() => setFont("atkinson")}
-              className={cn(
-                "flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs font-bold rounded-xl border transition-all font-atkinson cursor-pointer",
-                font === "atkinson"
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-background/80 border-border hover:bg-muted text-foreground"
-              )}
-            >
-              Atkinson
-            </button>
-          </div>
-        </motion.div>
+
 
         {/* ===== PITCH / HERO SECTION (from landing component) ===== */}
         <PitchSection />

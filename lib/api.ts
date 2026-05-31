@@ -72,9 +72,12 @@ async function request<T>(
   }
 
   const defaultHeaders: Record<string, string> = {
-    "ngrok-skip-browser-warning": "true",
     ...(headers as Record<string, string> | undefined),
   };
+
+  if (API_BASE_URL.includes("ngrok")) {
+    defaultHeaders["ngrok-skip-browser-warning"] = "true";
+  }
 
   if (fetchOptions.body && !(fetchOptions.body instanceof FormData)) {
     defaultHeaders["Content-Type"] = "application/json";
