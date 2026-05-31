@@ -52,18 +52,21 @@ export function DashboardScreen() {
   endOfWeek.setDate(startOfWeek.getDate() + 7);
 
   const dailyEarnings = [0, 0, 0, 0, 0, 0, 0];
+  const dailySessions = [0, 0, 0, 0, 0, 0, 0];
   sessions.forEach(s => {
     const sDate = new Date(s.created_at);
     if (sDate >= startOfWeek && sDate < endOfWeek) {
       const day = sDate.getDay();
       const dayIndex = day === 0 ? 6 : day - 1;
       dailyEarnings[dayIndex] += Number(s.earnings || 0);
+      dailySessions[dayIndex] += 1;
     }
   });
 
   const totalWeekEarnings = dailyEarnings.reduce((a, b) => a + b, 0);
 
   const finalDailyEarnings = dailyEarnings;
+  const finalDailySessions = dailySessions;
   const finalTotalWeekEarnings = totalWeekEarnings;
 
   return (
@@ -122,11 +125,11 @@ export function DashboardScreen() {
 
         <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-md">
           <div className="flex justify-between items-end h-32 gap-2 sm:gap-4 px-2">
-            {finalDailyEarnings.map((val, idx) => {
+            {finalDailySessions.map((sessionsCount, idx) => {
               const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
               const isToday = idx === (now.getDay() === 0 ? 6 : now.getDay() - 1);
-              const maxVal = Math.max(...finalDailyEarnings, 1);
-              const barHeight = (val / maxVal) * 80;
+              const maxVal = Math.max(...finalDailySessions, 1);
+              const barHeight = (sessionsCount / maxVal) * 80;
               
               return (
                 <div key={dayNames[idx]} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
@@ -134,7 +137,7 @@ export function DashboardScreen() {
                     "text-xs font-bold font-mono",
                     isToday ? "text-amber-600 dark:text-gold font-extrabold" : "text-muted-foreground/60"
                   )}>
-                    {val > 0 ? val.toFixed(0) : "—"}
+                    {sessionsCount > 0 ? sessionsCount : "—"}
                   </span>
                   
                   <div className="w-full flex justify-center items-end h-20">
@@ -145,7 +148,7 @@ export function DashboardScreen() {
                           ? "bg-gradient-to-t from-amber-600 to-gold dark:from-accent dark:to-gold shadow-[0_0_12px_rgba(217,119,6,0.3)] dark:shadow-[0_0_15px_oklch(var(--gold)/0.4)]" 
                           : "bg-poop/10 hover:bg-poop/20 dark:bg-muted/40 dark:hover:bg-muted/60"
                       )}
-                      style={{ height: val > 0 ? `${barHeight}%` : "6px" }}
+                      style={{ height: sessionsCount > 0 ? `${barHeight}%` : "6px" }}
                     />
                   </div>
 
