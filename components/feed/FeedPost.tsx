@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { proxyImage } from "@/lib/proxy-image";
 import { BlurRevealDialog } from "./BlurRevealDialog";
 import { ReviewDialog } from "./ReviewDialog";
 import { formatDistanceToNow } from "date-fns";
@@ -84,7 +85,7 @@ export function FeedPost({
         {/* Header */}
         <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-3">
           <Avatar className="size-10 border border-border/60">
-            <AvatarImage src={session.userDetails?.avatar_url} />
+            <AvatarImage src={proxyImage(session.userDetails?.avatar_url)} />
             <AvatarFallback className="bg-poop/15 text-poop font-bold">
               {session.userDetails?.username?.slice(0, 2).toUpperCase() || "??"}
             </AvatarFallback>
@@ -129,7 +130,7 @@ export function FeedPost({
             )}
           >
             <img
-              src={session.photo_url || "/placeholder.jpg"}
+              src={proxyImage(session.photo_url) || "/placeholder.jpg"}
               alt="Sessão no trono"
               className="w-full h-full object-cover"
             />

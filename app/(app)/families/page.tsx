@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { AlertCircle, ChevronLeft, Home, UserPlus, Users, Crown, Trash2, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { shopService } from "@/features/shop/services/shopService";
+import { proxyImage } from "@/lib/proxy-image";
 
 export default function FamiliesPage() {
   const {
@@ -156,7 +157,7 @@ export default function FamiliesPage() {
                   const memberProduct = products.find(
                     (p) => String(p.avatar_id) === String(member.avatar) || String(p.id) === String(member.avatar)
                   );
-                  const avatarUrl = memberProduct?.image_url || member.avatar_url;
+                  const avatarUrl = proxyImage(memberProduct?.image_url || member.avatar_url);
 
                   const isMemberOwner = member.id === ownerId;
 

@@ -14,6 +14,7 @@ import { MessageSquare, Send, Trash2 } from "lucide-react";
 import { commentService, Comment } from "@/services/commentService";
 import { shopService } from "@/features/shop/services/shopService";
 import { useAuth } from "@/lib/auth";
+import { proxyImage } from "@/lib/proxy-image";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -80,7 +81,7 @@ export function CommentDialog({
     const matchingProduct = products.find(
       (p) => String(p.avatar_id) === String(authorAvatar) || String(p.id) === String(authorAvatar)
     );
-    return matchingProduct?.image_url;
+    return proxyImage(matchingProduct?.image_url) || undefined;
   };
 
   return (

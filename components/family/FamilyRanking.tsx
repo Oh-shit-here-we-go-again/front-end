@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Crown, Medal, TrendingUp, Coins } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { proxyImage } from "@/lib/proxy-image";
 import { FamilyMember } from "../../types/family";
 
 interface FamilyRankingProps {
@@ -92,7 +93,7 @@ export function FamilyRanking({ members, products = [] }: FamilyRankingProps) {
                   const memberProduct = products.find(
                     (p) => String(p.avatar_id) === String(member.avatar) || String(p.id) === String(member.avatar) || String(p.avatar_id) === String(member.avatar_url) || String(p.id) === String(member.avatar_url)
                   );
-                  const avatarUrl = memberProduct?.image_url || (member.avatar_url && member.avatar_url.startsWith("/") ? member.avatar_url : undefined);
+                  const avatarUrl = proxyImage(memberProduct?.image_url || (member.avatar_url && member.avatar_url.startsWith("/") ? member.avatar_url : undefined)) || undefined;
 
                   return (
                     <Avatar className="size-10">

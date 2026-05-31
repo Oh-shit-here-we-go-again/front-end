@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthAvatar } from "./AuthAvatar";
+import { proxyImage } from "@/lib/proxy-image";
 import { NAV_ITEMS } from "./NavItems";
 
 import {
@@ -172,7 +173,7 @@ export function Header() {
                         )}
                       >
                         {item.href === "/profile" && user?.avatar_url ? (
-                          <img src={user.avatar_url} alt={item.label} className="size-full object-cover" />
+                          <img src={proxyImage(user.avatar_url)} alt={item.label} className="size-full object-cover" />
                         ) : (
                           <item.icon className="size-5 shrink-0" />
                         )}

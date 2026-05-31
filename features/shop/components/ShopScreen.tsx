@@ -8,6 +8,7 @@ import { ShopItem, Order } from "../types/shop.types";
 import { useAuth } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { User } from "@/types/User";
+import { proxyImage } from "@/lib/proxy-image";
 
 export function ShopScreen() {
   const { user, updateUser } = useAuth();
@@ -157,7 +158,7 @@ export function ShopScreen() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="bg-secondary/60 size-14 rounded-2xl flex items-center justify-center border border-gold/10 overflow-hidden">
                       {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="size-full object-cover" />
+                        <img src={proxyImage(item.image_url)} alt={item.name} className="size-full object-cover" />
                       ) : (
                         <span className="text-3xl">{item.emoji}</span>
                       )}

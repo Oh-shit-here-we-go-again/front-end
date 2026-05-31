@@ -10,6 +10,7 @@ import { User } from "@/types/User";
 import { shopService } from "@/features/shop/services/shopService";
 import { ShopItem } from "@/features/shop/types/shop.types";
 import { cn } from "@/lib/utils";
+import { proxyImage } from "@/lib/proxy-image";
 
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
@@ -119,7 +120,7 @@ export default function ProfilePage() {
 
         <div className="relative z-10 flex flex-col items-center mb-6 pb-6 border-b border-border/60">
           {user.avatar_url ? (
-            <img src={user.avatar_url} alt={displayName} className="size-20 rounded-full border border-gold/40 object-cover shadow-md mb-3 animate-pulse" />
+            <img src={proxyImage(user.avatar_url)} alt={displayName} className="size-20 rounded-full border border-gold/40 object-cover shadow-md mb-3 animate-pulse" />
           ) : (
             <div className="size-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-black mb-3">
               {displayName.slice(0, 2).toUpperCase()}
@@ -235,7 +236,7 @@ export default function ProfilePage() {
                     >
                       <div className="size-12 rounded-full overflow-hidden border border-border flex items-center justify-center bg-secondary/50">
                         {av.image_url ? (
-                          <img src={av.image_url} alt={av.name} className="size-full object-cover" />
+                          <img src={proxyImage(av.image_url)} alt={av.name} className="size-full object-cover" />
                         ) : (
                           <span className="text-2xl">{av.emoji}</span>
                         )}

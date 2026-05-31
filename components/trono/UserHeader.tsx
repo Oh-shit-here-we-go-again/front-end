@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@/types/api";
+import { proxyImage } from "@/lib/proxy-image";
 
 interface UserHeaderProps {
   user: User;
@@ -10,7 +11,7 @@ export function UserHeader({ user }: UserHeaderProps) {
   return (
     <div className="flex items-center gap-4 p-4 bg-card rounded-2xl border shadow-sm">
       <Avatar className="h-16 w-16">
-        <AvatarImage src={user.avatar_url} />
+        <AvatarImage src={proxyImage(user.avatar_url)} />
         <AvatarFallback className="text-lg">{initials}</AvatarFallback>
       </Avatar>
       <div>

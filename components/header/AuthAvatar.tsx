@@ -11,6 +11,7 @@ import {
 import { LogOutIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
+import { proxyImage } from "@/lib/proxy-image";
 
 export function AuthAvatar() {
   const { user, logout } = useAuth();
@@ -32,7 +33,7 @@ export function AuthAvatar() {
       <DropdownMenuTrigger asChild>
         <button className="size-12 rounded-full hover:opacity-80 transition">
           <Avatar className="size-12">
-            <AvatarImage src={user.avatar_url} alt={displayName} />
+            <AvatarImage src={proxyImage(user.avatar_url)} alt={displayName} />
             <AvatarFallback className="bg-primary text-primary-foreground text-lg">
               {initials}
             </AvatarFallback>

@@ -9,6 +9,7 @@ import { Trophy, Users, Globe, ArrowRight, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { shopService } from "@/features/shop/services/shopService";
+import { proxyImage } from "@/lib/proxy-image";
 import Link from "next/link";
 
 export default function RankingPage() {
@@ -28,7 +29,7 @@ export default function RankingPage() {
         const map: Record<string, string> = {};
         products.forEach((p) => {
           if (p.avatar_id && p.image_url) {
-            map[String(p.avatar_id)] = p.image_url;
+            map[String(p.avatar_id)] = proxyImage(p.image_url);
           }
         });
         setAvatarMap(map);

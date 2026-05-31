@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { proxyImage } from "@/lib/proxy-image";
 
 interface BlurRevealDialogProps {
   open: boolean;
@@ -77,7 +78,7 @@ export function BlurRevealDialog({
         {/* Preview blurred */}
         <div className="relative rounded-lg overflow-hidden border border-border">
           <img
-            src={photoUrl || "/placeholder-poop.jpg"}
+            src={proxyImage(photoUrl) || "/placeholder-poop.jpg"}
             alt="Sessão no trono"
             className={cn(
               "w-full h-64 object-cover transition-all duration-300",

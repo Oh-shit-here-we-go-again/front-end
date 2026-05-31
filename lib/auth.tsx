@@ -5,6 +5,7 @@ import { AuthAction, initialState } from "../types/AuthAction";
 import { AuthState } from "../types/AuthState";
 import { User } from "../types/User";
 import { shopService } from "@/features/shop/services/shopService";
+import { proxyImage } from "@/lib/proxy-image";
 import {
   api,
   getTokenFromCookie,
@@ -15,13 +16,13 @@ import {
 async function populateUserAvatar(user: User): Promise<User> {
   if (user.avatar) {
     if (user.avatar.startsWith("/") || user.avatar.startsWith("http")) {
-      user.avatar_url = user.avatar;
+      user.avatar_url = proxyImage(user.avatar);
     } else {
       try {
         const products = await shopService.fetchShopItems();
         const equipped = products.find((p) => String(p.avatar_id) === String(user.avatar) || String(p.id) === String(user.avatar) || p.image_url === user.avatar);
         if (equipped && equipped.image_url) {
-          user.avatar_url = equipped.image_url;
+          user.avatar_url = proxyImage(equipped.image_url);
         }
       } catch (e) {
         console.error("Erro ao popular avatar do usuário:", e);

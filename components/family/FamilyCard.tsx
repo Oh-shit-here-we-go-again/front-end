@@ -7,6 +7,7 @@ import { Check, Copy, Crown, Globe, Lock, Users } from "lucide-react";
 
 import { AvatarCircles } from "@/components/ui/avatar-circles";
 import { cn } from "@/lib/utils";
+import { proxyImage } from "@/lib/proxy-image";
 
 import { useState } from "react";
 import { Family, FamilyMember } from "../../types/family";
@@ -62,7 +63,7 @@ export function FamilyCard({
   const ownerId = typeof family.owner === "object" && family.owner ? (family.owner as any).id : family.owner;
 
   const avatarUrls = (members ?? []).slice(0, 5).map((m) => ({
-    imageUrl: m.avatar_url || "/default-avatar.png",
+    imageUrl: proxyImage(m.avatar_url) || "/default-avatar.png",
     profileUrl: `/profile/${m.id}`,
   }));
 
