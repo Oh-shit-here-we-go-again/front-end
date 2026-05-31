@@ -146,7 +146,7 @@ export function Header() {
       </header>
 
       {/* Floating Bottom Dock Navigation: MagicUI Dock Implementation */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
         <TooltipProvider>
           <Dock
             direction="middle"
@@ -165,13 +165,17 @@ export function Header() {
                         href={item.href}
                         aria-label={item.label}
                         className={cn(
-                          "size-10 rounded-full flex items-center justify-center transition-all duration-200",
+                          "size-10 rounded-full flex items-center justify-center transition-all duration-200 overflow-hidden",
                           isActive
                             ? "bg-poop text-white shadow-md scale-110"
                             : "text-muted-foreground hover:bg-poop/10 hover:text-poop",
                         )}
                       >
-                        <item.icon className="size-5 shrink-0" />
+                        {item.href === "/profile" && user?.avatar_url ? (
+                          <img src={user.avatar_url} alt={item.label} className="size-full object-cover" />
+                        ) : (
+                          <item.icon className="size-5 shrink-0" />
+                        )}
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent

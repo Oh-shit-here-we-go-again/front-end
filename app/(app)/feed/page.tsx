@@ -1,4 +1,3 @@
-// app/(app)/feed/page.tsx
 "use client";
 
 import { FeedPost } from "@/components/feed/FeedPost";
@@ -6,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFeed } from "@/hooks/useFeed";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { shopService } from "@/features/shop/services/shopService";
+import { CommentDialog } from "@/components/feed/CommentDialog";
 
 export default function FeedPage() {
   const {
@@ -16,8 +17,17 @@ export default function FeedPage() {
     hasMore,
     loadMore,
     toggleLike,
+    updateCommentCount,
     refresh,
   } = useFeed();
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [activeSessionIdForComments, setActiveSessionIdForComments] = useState<string | null>(null);
+
+  useEffect(() => {
+    shopService.fetchShopItems().then(setProducts).catch(console.error);
+  }, []);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback(
@@ -82,19 +92,20 @@ export default function FeedPage() {
       {/* Feed posts */}
       {sessions.map((session, index) => {
         // Mock user details (substituir por dados reais do backend quando disponível)
-        const user = (session as unknown as { user?: unknown })?.user;
+        const user = (session as unknown as { user?: any })?.user;
         const username =
           typeof user === "string"
             ? user.split("-")[0] || "Cagão"
             : typeof user === "object" && user !== null
-              ? ((user as { username?: string; name?: string }).username ??
-                (user as { username?: string; name?: string }).name ??
-                "Cagão")
+              ? (user.username ?? user.name ?? "Cagão")
               : "Cagão";
+
+        const userAvatar = typeof user === "object" && user !== null ? user.avatar : undefined;
+        const equippedProduct = products.find((p) => String(p.avatar_id) === String(userAvatar) || String(p.id) === String(userAvatar));
 
         const userDetails = {
           username,
-          avatar_url: undefined,
+          avatar_url: equippedProduct?.image_url || undefined,
         };
         return (
           <div
@@ -104,7 +115,10 @@ export default function FeedPage() {
             <FeedPost
               session={{ ...session, userDetails }}
               onLike={toggleLike}
-              onComment={(id) => console.log("Comment", id)}
+              onComment={(id) => {
+                setActiveSessionIdForComments(id);
+                setCommentDialogOpen(true);
+              }}
             />
           </div>
         );
@@ -124,6 +138,18 @@ export default function FeedPage() {
         <p className="text-center text-sm text-muted-foreground py-4">
           Chegou ao fim. Vá produzir conteúdo. 🚽
         </p>
+      )}
+
+      {/* Modal de Comentários */}
+      {activeSessionIdForComments && (
+        <CommentDialog
+          open={commentDialogOpen}
+          onOpenChange={setCommentDialogOpen}
+          sessionId={activeSessionIdForComments}
+          onCommentCountUpdate={(newCount) => {
+            updateCommentCount(activeSessionIdForComments, newCount);
+          }}
+        />
       )}
     </div>
   );

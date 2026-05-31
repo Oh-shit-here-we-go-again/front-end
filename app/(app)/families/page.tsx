@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { CreateFamilyModal } from "@/components/family/CreateFamilyModal";
 import { FamilyCard } from "@/components/family/FamilyCard";
@@ -14,6 +14,7 @@ import { useFamilies } from "@/hooks/useFamilies";
 import { useAuth } from "@/lib/auth";
 import { AlertCircle, ChevronLeft, Home, UserPlus, Users, Crown, Trash2, UserMinus } from "lucide-react";
 import { toast } from "sonner";
+import { shopService } from "@/features/shop/services/shopService";
 
 export default function FamiliesPage() {
   const {
@@ -36,6 +37,13 @@ export default function FamiliesPage() {
   const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"public" | "my">("public");
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    shopService.fetchShopItems()
+      .then(setProducts)
+      .catch((err) => console.error("Erro ao carregar avatares no grupo:", err));
+  }, []);
 
   // Filtra as famílias para mostrar apenas a que o usuário pertence
   const userFamilyId = typeof user?.family === "object" && user?.family ? (user.family as any).id : user?.family;
@@ -145,6 +153,11 @@ export default function FamiliesPage() {
                     .toUpperCase()
                     .slice(0, 2);
 
+                  const memberProduct = products.find(
+                    (p) => String(p.avatar_id) === String(member.avatar) || String(p.id) === String(member.avatar)
+                  );
+                  const avatarUrl = memberProduct?.image_url || member.avatar_url;
+
                   const isMemberOwner = member.id === ownerId;
 
                   return (
@@ -153,10 +166,18 @@ export default function FamiliesPage() {
                       className="flex items-center justify-between p-2 rounded-lg hover:bg-secondary/50 group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-poop/20 flex items-center justify-center text-poop font-bold relative">
-                          {initials}
+                        <div className="size-10 rounded-full bg-poop/20 flex items-center justify-center text-poop font-bold relative overflow-hidden">
+                          {avatarUrl ? (
+                            <img
+                              src={avatarUrl}
+                              alt={member.username}
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            initials
+                          )}
                           {isMemberOwner && (
-                            <span className="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full p-0.5" title="Dono da Família">
+                            <span className="absolute -top-1 -right-1 bg-amber-500 text-white rounded-full p-0.5 z-10" title="Dono da Família">
                               <Crown className="size-3" />
                             </span>
                           )}
@@ -217,7 +238,7 @@ export default function FamiliesPage() {
             </CardContent>
           </Card>
 
-          <FamilyRanking members={familyRanking} />
+          <FamilyRanking members={familyRanking} products={products} />
         </div>
 
         <div className="text-center text-sm text-muted-foreground border-t pt-4 mt-4">
