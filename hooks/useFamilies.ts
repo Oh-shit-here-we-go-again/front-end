@@ -102,12 +102,20 @@ export function useFamilies(): UseFamiliesReturn {
         }
         return newFamily;
       } catch (error) {
-        const status = (error as { status?: number | string } | undefined)
-          ?.status;
+        const err = error as { status?: number; data?: { detail?: string; message?: string } };
+        const status = err?.status;
+        const detail = err?.data?.detail || err?.data?.message || "";
+
         if (status === 400) {
-          toast.error(
-            "💩 Já existe uma família com esse nome! Seu trono já está ocupado. Inventa outro nome, tipo 'Os Cuié Team 2', e vamos!",
-          );
+          if (detail.toLowerCase().includes("já") && (detail.toLowerCase().includes("família") || detail.toLowerCase().includes("grupo") || detail.toLowerCase().includes("membro"))) {
+            toast.error(
+              "🧻 Calma, segura o papel higiênico! Você já tem um trono reservado. Para criar ou entrar em uma nova família, você precisa liberar o assento atual primeiro!",
+            );
+          } else {
+            toast.error(
+              "💩 Já existe uma família com esse nome! Seu trono já está ocupado. Inventa outro nome, tipo 'Os Cuié Team 2', e vamos!",
+            );
+          }
         } else {
           toast.error(
             "💨 Saiu que nem peido! Não consegui criar a família. Se o vaso não colaborou, tenta mais uma vez com força e fé.",
@@ -140,17 +148,24 @@ export function useFamilies(): UseFamiliesReturn {
         }
         return family;
       } catch (error) {
-        const status = (error as { status?: number | string } | undefined)
-          ?.status;
+        const err = error as { status?: number; data?: { detail?: string; message?: string } };
+        const status = err?.status;
+        const detail = err?.data?.detail || err?.data?.message || "";
 
         if (status === 404) {
           toast.error(
             "🔍 Esse código de convite tá mais sumido que papel higiênico na hora H! Confere e tenta de novo.",
           );
         } else if (status === 400) {
-          toast.error(
-            "👥 Você já tá nessa família! Dois peidos no mesmo vaso não rolam: pede pra trocar de equipe ou entra em outra!",
-          );
+          if (detail.toLowerCase().includes("já") && (detail.toLowerCase().includes("família") || detail.toLowerCase().includes("grupo") || detail.toLowerCase().includes("membro"))) {
+            toast.error(
+              "🧻 Calma, segura o papel higiênico! Você já tem um trono reservado. Para criar ou entrar em uma nova família, você precisa liberar o assento atual primeiro!",
+            );
+          } else {
+            toast.error(
+              "👥 Você já tá nessa família! Dois peidos no mesmo vaso não rolam: pede pra trocar de equipe ou entra em outra!",
+            );
+          }
         } else {
           toast.error(
             "🚪 Batemos na porta, mas ninguém atendeu! Código inválido ou expirou. Dá uma revisada aí.",

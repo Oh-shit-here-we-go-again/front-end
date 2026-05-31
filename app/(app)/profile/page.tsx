@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShineBorder } from "@/components/ui/shine-border";
-import { User as UserIcon, DollarSign, Briefcase, Image, LogOut, CheckCircle, Info } from "lucide-react";
+import { User as UserIcon, DollarSign, Briefcase, LogOut, CheckCircle, Info, Crown, Check } from "lucide-react";
 import { User } from "@/types/User";
+import { shopService } from "@/features/shop/services/shopService";
+import { ShopItem } from "@/features/shop/types/shop.types";
+import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const { user, logout, updateUser } = useAuth();
@@ -15,11 +18,49 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [company, setCompany] = useState(user?.company || "");
   const [salary, setSalary] = useState(user?.monthly_salary?.toString() || "3500");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || "");
+  
+  const [unlockedAvatars, setUnlockedAvatars] = useState<ShopItem[]>([]);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | number>(user?.avatar || "");
+  const [loadingAvatars, setLoadingAvatars] = useState(true);
   
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (user?.avatar) {
+      setSelectedAvatarId(user.avatar);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const loadUnlockedAvatars = async () => {
+      try {
+        setLoadingAvatars(true);
+        const [products, orders] = await Promise.all([
+          shopService.fetchShopItems(),
+          shopService.fetchOrders(),
+        ]);
+
+        const completedOrderProductIds = new Set(
+          orders
+            .filter((o) => o.status === "completed")
+            .flatMap((o) => o.items.map((i) => String(i.product.id)))
+        );
+
+        const unlocked = products.filter(
+          (p) => (p as any).avatar_is_free || (p as any).is_free || p.cost === 0 || completedOrderProductIds.has(String(p.id))
+        );
+
+        setUnlockedAvatars(unlocked);
+      } catch (err) {
+        console.error("Erro ao carregar avatares desbloqueados:", err);
+      } finally {
+        setLoadingAvatars(false);
+      }
+    };
+    loadUnlockedAvatars();
+  }, []);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +76,11 @@ export default function ProfilePage() {
           last_name: lastName,
           company,
           monthly_salary: Number(salary),
-          avatar_url: avatarUrl,
+          avatar: selectedAvatarId || null,
         }),
       }) as User;
 
-      updateUser(updatedData);
+      await updateUser(updatedData);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Erro catastrófico ao atualizar dados.");
@@ -78,7 +119,7 @@ export default function ProfilePage() {
 
         <div className="relative z-10 flex flex-col items-center mb-6 pb-6 border-b border-border/60">
           {user.avatar_url ? (
-            <img src={user.avatar_url} alt={displayName} className="size-20 rounded-full border border-gold/40 object-cover shadow-md mb-3" />
+            <img src={user.avatar_url} alt={displayName} className="size-20 rounded-full border border-gold/40 object-cover shadow-md mb-3 animate-pulse" />
           ) : (
             <div className="size-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-black mb-3">
               {displayName.slice(0, 2).toUpperCase()}
@@ -159,17 +200,65 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">URL da Imagem do Avatar</label>
-            <div className="relative">
-              <Image className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <input
-                type="url"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://exemplo.com/avatar.jpg"
-                className="w-full bg-background border border-border rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
+            <label className="text-xs font-bold text-muted-foreground uppercase block mb-3">
+              Seus Avatares Desbloqueados
+            </label>
+            {loadingAvatars ? (
+              <div className="text-center py-6 text-xs text-muted-foreground animate-pulse">
+                Carregando seus avatares do cofre...
+              </div>
+            ) : unlockedAvatars.length === 0 ? (
+              <div className="text-center py-6 border border-dashed rounded-2xl bg-secondary/10">
+                <p className="text-xs text-muted-foreground">Nenhum avatar desbloqueado ainda.</p>
+                <p className="text-xxs text-muted-foreground/80 mt-1">
+                  Visite a Lojinha shoPum para garantir seus primeiros avatares!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                {unlockedAvatars.map((av) => {
+                  const avatarKey = av.avatar_id || av.id;
+                  const isSelected = String(avatarKey) === String(selectedAvatarId);
+                  const isEquipped = user?.avatar && String(avatarKey) === String(user.avatar);
+
+                  return (
+                    <button
+                      key={av.id}
+                      type="button"
+                      onClick={() => setSelectedAvatarId(avatarKey)}
+                      className={cn(
+                        "relative flex flex-col items-center p-3 rounded-2xl border-2 transition-all cursor-pointer bg-card hover:-translate-y-0.5",
+                        isSelected
+                          ? "border-gold shadow-md bg-gold/5"
+                          : "border-border hover:border-muted-foreground/30"
+                      )}
+                    >
+                      <div className="size-12 rounded-full overflow-hidden border border-border flex items-center justify-center bg-secondary/50">
+                        {av.image_url ? (
+                          <img src={av.image_url} alt={av.name} className="size-full object-cover" />
+                        ) : (
+                          <span className="text-2xl">{av.emoji}</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-black text-center mt-2 truncate w-full text-foreground">
+                        {av.name}
+                      </span>
+
+                      {isSelected && (
+                        <span className="absolute -top-1.5 -right-1.5 bg-gold text-poop-dark rounded-full p-0.5 shadow-sm">
+                          <Check className="size-3" />
+                        </span>
+                      )}
+                      {isEquipped && !isSelected && (
+                        <span className="absolute -top-1.5 -right-1.5 bg-secondary text-muted-foreground rounded-full p-0.5 shadow-sm" title="Equipado">
+                          <Crown className="size-3" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="pt-2">

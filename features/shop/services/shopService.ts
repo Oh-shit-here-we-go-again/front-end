@@ -62,6 +62,7 @@ export const shopService = {
         const name = prod.name || prod.avatar_name || "Mimo Especial";
         return {
           id: prod.id,
+          avatar_id: prod.avatar_id,
           name: name,
           emoji: getEmojiForProduct(name),
           image_url: prod.image_url || prod.avatar_image,

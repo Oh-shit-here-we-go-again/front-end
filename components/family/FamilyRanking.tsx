@@ -10,6 +10,7 @@ import { FamilyMember } from "../../types/family";
 
 interface FamilyRankingProps {
   members: FamilyMember[];
+  products?: any[];
 }
 
 const getRankIcon = (position: number) => {
@@ -29,7 +30,7 @@ const getRankIcon = (position: number) => {
   }
 };
 
-export function FamilyRanking({ members }: FamilyRankingProps) {
+export function FamilyRanking({ members, products = [] }: FamilyRankingProps) {
   const sortedMembers = [...members].sort((a, b) => {
     const earningsA = parseFloat(a.earnings || "0");
     const earningsB = parseFloat(b.earnings || "0");
@@ -87,12 +88,21 @@ export function FamilyRanking({ members }: FamilyRankingProps) {
                   {getRankIcon(index)}
                 </div>
 
-                <Avatar className="size-10">
-                  <AvatarImage src={member.avatar_url} />
-                  <AvatarFallback className="bg-poop/20 text-poop">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
+                {(() => {
+                  const memberProduct = products.find(
+                    (p) => String(p.avatar_id) === String(member.avatar) || String(p.id) === String(member.avatar) || String(p.avatar_id) === String(member.avatar_url) || String(p.id) === String(member.avatar_url)
+                  );
+                  const avatarUrl = memberProduct?.image_url || (member.avatar_url && member.avatar_url.startsWith("/") ? member.avatar_url : undefined);
+
+                  return (
+                    <Avatar className="size-10">
+                      <AvatarImage src={avatarUrl} />
+                      <AvatarFallback className="bg-poop/20 text-poop">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  );
+                })()}
 
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">
