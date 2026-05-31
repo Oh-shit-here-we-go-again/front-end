@@ -22,6 +22,12 @@ const defaultMessages = [
   "Aquecendo o assento... 🔥",
 ];
 
+// Função auxiliar para escolher uma mensagem aleatória
+const getRandomMessage = (customMessage?: string): string => {
+  if (customMessage) return customMessage;
+  return defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
+};
+
 export function LoadingPage({
   message,
   emoji = "💩",
@@ -30,17 +36,12 @@ export function LoadingPage({
   className,
   children,
 }: LoadingPageProps) {
+  // Calcula a mensagem uma única vez no estado inicial (sem efeito colateral)
+  const [randomMessage] = useState(() => getRandomMessage(message));
   const [gifUrl, setGifUrl] = useState<string | null>(null);
-  const [randomMessage, setRandomMessage] = useState<string>("");
 
+  // Busca GIF de forma assíncrona (permitido, pois não é setState síncrono)
   useEffect(() => {
-    // Mensagem aleatória
-    setRandomMessage(
-      message ||
-        defaultMessages[Math.floor(Math.random() * defaultMessages.length)],
-    );
-
-    // Busca GIF aleatório
     const fetchGif = async () => {
       try {
         const gf = new GiphyFetch(process.env.NEXT_PUBLIC_GIPHY_API_KEY || "");
@@ -56,7 +57,7 @@ export function LoadingPage({
       }
     };
     fetchGif();
-  }, [message, giphyTag]);
+  }, [giphyTag]);
 
   const content = (
     <div
