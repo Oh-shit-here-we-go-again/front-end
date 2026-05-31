@@ -63,11 +63,8 @@ export function DashboardScreen() {
 
   const totalWeekEarnings = dailyEarnings.reduce((a, b) => a + b, 0);
 
-  // Fallback to mock values matching the high-fidelity design if user has no sessions this week yet
-  const finalDailyEarnings = totalWeekEarnings > 0 
-    ? dailyEarnings 
-    : [18.00, 31.00, 13.00, 45.00, 27.00, 4.00, 0.00];
-  const finalTotalWeekEarnings = totalWeekEarnings > 0 ? totalWeekEarnings : 138.60;
+  const finalDailyEarnings = dailyEarnings;
+  const finalTotalWeekEarnings = totalWeekEarnings;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

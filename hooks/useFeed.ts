@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { feedService } from "@/services/feedService";
 import { likeService } from "@/services/likeService";
-import { reviewService } from "@/services/reviewService";
 import { BathroomSession } from "../types/feed";
 
 interface UseFeedReturn {
@@ -15,7 +14,6 @@ interface UseFeedReturn {
   hasMore: boolean;
   loadMore: () => Promise<void>;
   toggleLike: (sessionId: string, currentLikes: number) => Promise<void>;
-  submitRating: (sessionId: string, rating: number) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -25,17 +23,14 @@ export function useFeed(): UseFeedReturn {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const isMounted = useRef(true);
-
   const fetchFeed = useCallback(async (pageNum: number, append = false) => {
     try {
       const response = await feedService.getFeed(pageNum);
-      const newSessions = response.results.map((session) => ({
+      const newSessions = response.results.map((session: any) => ({
         ...session,
+        photo_url: session.photo || session.photo_url,
         likedByUser: false, // inicializa como false; depois o backend pode informar se já curtiu
       }));
-
-      if (!isMounted.current) return;
 
       if (append) {
         setSessions((prev) => [...prev, ...newSessions]);
@@ -75,12 +70,12 @@ export function useFeed(): UseFeedReturn {
           prev.map((s) =>
             s.id === sessionId
               ? {
-                  ...s,
-                  like_count: String(
-                    Number(s.like_count) + (s.likedByUser ? -1 : 1),
-                  ),
-                  likedByUser: !s.likedByUser,
-                }
+                ...s,
+                like_count: String(
+                  Number(s.like_count) + (s.likedByUser ? -1 : 1),
+                ),
+                likedByUser: !s.likedByUser,
+              }
               : s,
           ),
         );
@@ -92,10 +87,10 @@ export function useFeed(): UseFeedReturn {
           prev.map((s) =>
             s.id === sessionId
               ? {
-                  ...s,
-                  like_count: String(currentLikes),
-                  likedByUser: !s.likedByUser,
-                }
+                ...s,
+                like_count: String(currentLikes),
+                likedByUser: !s.likedByUser,
+              }
               : s,
           ),
         );
@@ -105,19 +100,6 @@ export function useFeed(): UseFeedReturn {
     [],
   );
 
-  const submitRating = useCallback(
-    async (sessionId: string, rating: number) => {
-      try {
-        await reviewService.createReview({ session: sessionId, rating });
-        toast.success(
-          `💩 Você avaliou com ${rating} 💩! Obrigado pelo feedback fedorento.`,
-        );
-      } catch (error) {
-        toast.error("💨 Falha ao enviar avaliação. O sistema deu uma peidada.");
-      }
-    },
-    [],
-  );
 
   // Efeito de montagem: chama refresh de forma segura (sem warning)
   useEffect(() => {
@@ -129,7 +111,6 @@ export function useFeed(): UseFeedReturn {
     loadInitial();
     return () => {
       active = false;
-      isMounted.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // refresh é estável, mas ignoramos dependência para evitar loop
@@ -141,7 +122,6 @@ export function useFeed(): UseFeedReturn {
     hasMore,
     loadMore,
     toggleLike,
-    submitRating,
     refresh,
   };
 }

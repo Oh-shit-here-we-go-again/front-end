@@ -1,7 +1,7 @@
 // lib/api.ts
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "https://psephological-trigonally-gaynelle.ngrok-free.dev/api";
+  "https://veronique-maniform-nonboastingly.ngrok-free.dev/api";
 
 export type RequestOptions = RequestInit & {
   requiresAuth?: boolean;
@@ -72,9 +72,12 @@ async function request<T>(
   }
 
   const defaultHeaders: Record<string, string> = {
-    "ngrok-skip-browser-warning": "true",
     ...(headers as Record<string, string> | undefined),
   };
+
+  if (API_BASE_URL.includes("ngrok")) {
+    defaultHeaders["ngrok-skip-browser-warning"] = "true";
+  }
 
   if (fetchOptions.body && !(fetchOptions.body instanceof FormData)) {
     defaultHeaders["Content-Type"] = "application/json";

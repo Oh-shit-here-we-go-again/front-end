@@ -93,7 +93,7 @@ export function ShopScreen() {
             <ShoppingBag className="size-8 text-primary" /> shoPum
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Gaste suas Cocoins em mimos e produtos premium criados especialmente para deixar suas sessões no trono muito mais relaxantes, perfumadas e agradáveis.
+            Gaste suas Cocoins para desbloquear novos avatares incríveis e personalizar o seu visual no topo do trono!
           </p>
         </div>
 
@@ -117,7 +117,7 @@ export function ShopScreen() {
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
-          Loja de Mimos
+          Loja de Avatares
         </button>
         <button
           onClick={() => setActiveTab("orders")}
@@ -147,7 +147,7 @@ export function ShopScreen() {
       {activeTab === "store" ? (
         loadingItems ? (
           <div className="text-center py-12">
-            <span className="text-sm font-bold text-muted-foreground animate-pulse">Carregando mimos da lojinha...</span>
+            <span className="text-sm font-bold text-muted-foreground animate-pulse">Carregando avatares da lojinha...</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,7 +178,7 @@ export function ShopScreen() {
                     onClick={() => handleBuy(item)}
                     className="bg-primary text-primary-foreground font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-primary/95 transition cursor-pointer"
                   >
-                    Comprar Item
+                    Comprar Avatar
                   </button>
                 </div>
               </div>
@@ -193,7 +193,7 @@ export function ShopScreen() {
         ) : orders.length === 0 ? (
           <div className="text-center py-12 bg-card border border-dashed border-border rounded-3xl">
             <span className="text-sm font-bold text-muted-foreground block mb-1">Nenhum resgate encontrado.</span>
-            <span className="text-xs text-muted-foreground/80">Faça cagadas remuneradas para acumular Cocoins e resgatar mimos!</span>
+            <span className="text-xs text-muted-foreground/80">Faça cagadas remuneradas para acumular Cocoins e resgatar novos avatares!</span>
           </div>
         ) : (
           <div className="space-y-4">

@@ -19,7 +19,7 @@ export function CTASection() {
         </p>
         <Link href="/register">
           <RainbowButton className="shadow-lg transform active:scale-95 transition-transform font-bold text-base h-12 px-8 rounded-xl cursor-pointer">
-            Cadastrar agora 💩
+            Quero meu Assento Reservado 🧻
           </RainbowButton>
         </Link>
         <p className="text-xs text-muted-foreground mt-6">

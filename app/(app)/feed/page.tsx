@@ -16,7 +16,6 @@ export default function FeedPage() {
     hasMore,
     loadMore,
     toggleLike,
-    submitRating,
     refresh,
   } = useFeed();
 
@@ -105,7 +104,6 @@ export default function FeedPage() {
             <FeedPost
               session={{ ...session, userDetails }}
               onLike={toggleLike}
-              onRating={submitRating}
               onComment={(id) => console.log("Comment", id)}
             />
           </div>

@@ -15,10 +15,16 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState(false);
+  const [registeredMessage, setRegisteredMessage] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.search.includes("descarga=true")) {
-      setLogoutMessage(true);
+    if (typeof window !== "undefined") {
+      if (window.location.search.includes("descarga=true")) {
+        setLogoutMessage(true);
+      }
+      if (window.location.search.includes("registered=true")) {
+        setRegisteredMessage(true);
+      }
     }
   }, []);
 
@@ -57,6 +63,15 @@ export default function LoginPage() {
       </div>
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
+        {registeredMessage && (
+          <div className="bg-green-500/10 border border-green-500/30 text-green-600 p-4 rounded-xl text-xs font-bold flex items-start gap-2.5 w-full break-words whitespace-normal animate-fade-in">
+            <CheckCircle className="size-4 shrink-0 mt-0.5" />
+            <span className="break-words w-full">
+              Cadastro realizado com sucesso! Insira suas credenciais para ocupar o trono. 🚽🚀
+            </span>
+          </div>
+        )}
+
         {logoutMessage && (
           <div className="bg-green-500/10 border border-green-500/30 text-green-600 p-4 rounded-xl text-xs font-bold flex items-start gap-2.5 w-full break-words whitespace-normal animate-fade-in">
             <CheckCircle className="size-4 shrink-0 mt-0.5" />

@@ -70,9 +70,7 @@ export function BlurRevealDialog({
               : "Última chance antes do trauma"}
           </DialogTitle>
           <DialogDescription>
-            {step === 1
-              ? randomJoke
-              : "Você está prestes a revelar uma foto de trono. Não diga que não avisamos."}
+            Confirme se deseja remover a censura desta obra de arte.
           </DialogDescription>
         </DialogHeader>
 
@@ -86,8 +84,12 @@ export function BlurRevealDialog({
               step === 1 ? "blur-2xl scale-105" : "blur-md",
             )}
           />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-6xl opacity-70">💩</span>
+          <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/10 pointer-events-none">
+            <p className="text-white text-xs sm:text-sm font-black px-4 py-3.5 bg-black/75 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl max-w-[85%] text-center leading-relaxed animate-fade-in">
+              {step === 1
+                ? randomJoke
+                : "⚠️ Você está prestes a revelar uma foto de trono. Não diga que não avisamos!"}
+            </p>
           </div>
         </div>
 

@@ -3,6 +3,9 @@
 
 import { familyService } from "@/services/familyService";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { User } from "../types/User";
 
 import { toast } from "sonner";
 import { Family, FamilyMember } from "../types/family";
@@ -20,10 +23,14 @@ interface UseFamiliesReturn {
   createFamily: (name: string) => Promise<Family | null>;
   joinFamily: (code: string) => Promise<Family | null>;
   leaveFamily: () => Promise<boolean>;
+  transferOwnership: (userId: string) => Promise<boolean>;
+  deleteFamily: () => Promise<boolean>;
+  removeMember: (userId: string) => Promise<boolean>;
   resetSelectedFamily: () => void;
 }
 
 export function useFamilies(): UseFamiliesReturn {
+  const { updateUser } = useAuth();
   const [families, setFamilies] = useState<Family[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
@@ -87,6 +94,12 @@ export function useFamilies(): UseFamiliesReturn {
           `💩 ${name} foi criada! Agora você é o Rei/Regente do Trono Coletivo!`,
         );
         await fetchFamilies();
+        try {
+          const refreshedUser = await api.get<User>("/auth/me/");
+          updateUser(refreshedUser);
+        } catch (authErr) {
+          console.error("Erro ao sincronizar usuário após criação de família:", authErr);
+        }
         return newFamily;
       } catch (error) {
         const status = (error as { status?: number | string } | undefined)
@@ -113,12 +126,18 @@ export function useFamilies(): UseFamiliesReturn {
       try {
         setIsJoining(true);
         const family = await familyService.joinFamily({
-          invite_code: code.toUpperCase(),
+          invite_code: code,
         });
         toast.success(
           `🎉 Boooaa! Você entrou na família ${family.name}! Agora vocês vão cagar em equipe!`,
         );
         await fetchFamilies();
+        try {
+          const refreshedUser = await api.get<User>("/auth/me/");
+          updateUser(refreshedUser);
+        } catch (authErr) {
+          console.error("Erro ao sincronizar usuário após entrar na família:", authErr);
+        }
         return family;
       } catch (error) {
         const status = (error as { status?: number | string } | undefined)
@@ -150,7 +169,7 @@ export function useFamilies(): UseFamiliesReturn {
     if (!selectedFamily) return false;
 
     try {
-      await familyService.leaveFamily(selectedFamily.id);
+      await familyService.leaveFamily();
       toast.info(
         `💔 Você saiu da família ${selectedFamily.name}. Que a força do 💩 esteja com você!`,
       );
@@ -158,11 +177,95 @@ export function useFamilies(): UseFamiliesReturn {
       setFamilyMembers([]);
       setFamilyRanking([]);
       await fetchFamilies();
+      try {
+        const refreshedUser = await api.get<User>("/auth/me/");
+        updateUser(refreshedUser);
+      } catch (authErr) {
+        console.error("Erro ao sincronizar usuário após sair da família:", authErr);
+      }
       return true;
-    } catch {
-      toast.error(
-        "😭 Não consegui sair! O encanamento travou e o vaso ficou de drama. Tenta de novo (ou chama um encanador do trono).",
-      );
+    } catch (error) {
+      const err = error as { status?: number; data?: { detail?: string; message?: string } };
+      if (err.status === 400) {
+        const errorMsg = err.data?.detail || err.data?.message || "Você não pode sair desta família.";
+        toast.error(`⚠️ ${errorMsg}`);
+      } else {
+        toast.error(
+          "😭 Não consegui sair! O encanamento travou e o vaso ficou de drama. Tenta de novo (ou chama um encanador do trono).",
+        );
+      }
+      return false;
+    }
+  }, [selectedFamily, fetchFamilies, updateUser]);
+
+  const transferOwnership = useCallback(async (userId: string): Promise<boolean> => {
+    if (!selectedFamily) return false;
+
+    try {
+      const updatedFamily = await familyService.transferOwnership(selectedFamily.id, userId);
+      toast.success("👑 Coroa transferida com sucesso! Você não é mais o dono deste trono.");
+      setSelectedFamily(updatedFamily);
+      await fetchFamilies();
+      try {
+        const refreshedUser = await api.get<User>("/auth/me/");
+        updateUser(refreshedUser);
+      } catch (authErr) {
+        console.error("Erro ao sincronizar usuário após transferir liderança:", authErr);
+      }
+      return true;
+    } catch (error) {
+      const err = error as { status?: number; data?: { detail?: string; message?: string } };
+      const errorMsg = err.data?.detail || err.data?.message || "Não foi possível transferir a liderança.";
+      toast.error(`⚠️ ${errorMsg}`);
+      return false;
+    }
+  }, [selectedFamily, fetchFamilies, updateUser]);
+
+  const deleteFamily = useCallback(async (): Promise<boolean> => {
+    if (!selectedFamily) return false;
+
+    try {
+      await familyService.deleteFamily(selectedFamily.id);
+      toast.success("💥 Família excluída! O vaso foi implodido e todos foram liberados.");
+      setSelectedFamily(null);
+      setFamilyMembers([]);
+      setFamilyRanking([]);
+      await fetchFamilies();
+      try {
+        const refreshedUser = await api.get<User>("/auth/me/");
+        updateUser(refreshedUser);
+      } catch (authErr) {
+        console.error("Erro ao sincronizar usuário após excluir família:", authErr);
+      }
+      return true;
+    } catch (error) {
+      const err = error as { status?: number; data?: { detail?: string; message?: string } };
+      const errorMsg = err.data?.detail || err.data?.message || "Não foi possível excluir a família.";
+      toast.error(`⚠️ ${errorMsg}`);
+      return false;
+    }
+  }, [selectedFamily, fetchFamilies, updateUser]);
+
+  const removeMember = useCallback(async (userId: string): Promise<boolean> => {
+    if (!selectedFamily) return false;
+
+    try {
+      await familyService.removeMember(selectedFamily.id, userId);
+      toast.info("🚽 Membro removido com sucesso! O trono foi liberado.");
+      // Recarrega detalhes da família para atualizar a lista
+      const [members, ranking] = await Promise.all([
+        familyService.getFamilyMembers(selectedFamily.id),
+        familyService.getFamilyRanking(selectedFamily.id),
+      ]);
+      setFamilyMembers(members);
+      setFamilyRanking(ranking);
+      // Atualiza a contagem na lista geral
+      await fetchFamilies();
+      return true;
+    } catch (error) {
+      const err = error as { status?: number; data?: { detail?: string; message?: string } };
+      const errorMsg = err.data?.detail || err.data?.message || "Não foi possível remover o membro.";
+      toast.error(`⚠️ ${errorMsg}`);
       return false;
     }
   }, [selectedFamily, fetchFamilies]);
@@ -203,6 +306,9 @@ export function useFamilies(): UseFamiliesReturn {
     createFamily,
     joinFamily,
     leaveFamily,
+    transferOwnership,
+    deleteFamily,
+    removeMember,
     resetSelectedFamily,
   };
 }

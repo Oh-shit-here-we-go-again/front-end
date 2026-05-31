@@ -90,31 +90,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "UPDATE_USER", payload: user });
   };
   const register = async (registerData: any) => {
-    dispatch({ type: "LOGIN_START" });
-    try {
-      const response = await api.post<{ access?: string; refresh?: string }>(
-        "/auth/register/",
-        registerData,
-        { requiresAuth: false }
-      );
-      let access = response.access;
-      if (access) {
-        setTokenCookie(access);
-      } else {
-        const loginRes = await api.post<{ access: string }>(
-          "/auth/login/",
-          { username: registerData.username, password: registerData.password },
-          { requiresAuth: false }
-        );
-        access = loginRes.access;
-        setTokenCookie(access);
-      }
-      const user = await api.get<User>("/auth/me/");
-      dispatch({ type: "LOGIN_SUCCESS", payload: user });
-    } catch (error) {
-      dispatch({ type: "LOGIN_FAILURE" });
-      throw error;
-    }
+    await api.post(
+      "/auth/register/",
+      registerData,
+      { requiresAuth: false }
+    );
   };
   return (
     <AuthContext.Provider

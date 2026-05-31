@@ -21,6 +21,7 @@ interface FamilyCardProps {
   onJoin?: (code: string) => void;
   showJoinButton?: boolean;
   showCopyCode?: boolean;
+  currentUserId?: string;
 }
 
 const COCO_JOKES = [
@@ -41,6 +42,7 @@ export function FamilyCard({
   onJoin,
   showJoinButton = true,
   showCopyCode = true,
+  currentUserId,
 }: FamilyCardProps) {
   const [copied, setCopied] = useState(false);
   const [randomJoke] = useState(
@@ -56,6 +58,8 @@ export function FamilyCard({
   const memberCount = parseInt(family.member_count);
   const isCrowded = memberCount > 10;
   const isFull = memberCount >= 20;
+
+  const ownerId = typeof family.owner === "object" && family.owner ? (family.owner as any).id : family.owner;
 
   const avatarUrls = (members ?? []).slice(0, 5).map((m) => ({
     imageUrl: m.avatar_url || "/default-avatar.png",
@@ -76,7 +80,7 @@ export function FamilyCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
-            {family.owner && <Crown className="size-4 text-gold" />}
+            {ownerId === currentUserId && <Crown className="size-4 text-gold" />}
             <CardTitle className="text-xl font-black tracking-tight">
               {family.name}
             </CardTitle>
