@@ -12,17 +12,17 @@ export function getDramaticErrorMessage(error: any): string {
           const firstFieldMsg = fields[firstFieldKey];
           const friendlyFieldName = firstFieldKey === "username" ? "Nome do Cagão" : firstFieldKey;
           const msgStr = Array.isArray(firstFieldMsg) ? firstFieldMsg[0] : String(firstFieldMsg);
-          
+
           if (msgStr.toLowerCase().includes("já existe") || msgStr.toLowerCase().includes("already exists")) {
             return "TEM GENTE!! Bateu na porta sem avisar? Alguém já tá sentado no trono com esse username/e-mail, amigo. Dois CPFs não cagam no mesmo vaso. Inventa outro nome, tipo 'ReiDoBarroso69', e me deixa em paz.";
           }
-          
+
           return `Me ajuda a te ajudar! Tem erro no campo "${friendlyFieldName}": ${msgStr}.`;
         }
         return "Me ajuda a te ajudar! Você mandou o formulário pela metade. Isso é o equivalente a soltar um peido e perceber que veio com 'brinde'. Um desastre anunciado. Preenche todos os campos antes que essa requisição suje a minha tela!";
       }
       case 401:
-        return "Senha errada, chefe! Tentar entrar aqui com a senha incorreta é igual tentar segurar diarreia com a força do pensamento: não rola, e o final é sempre humilhante. Concentra aí e digita direito antes que vaze!";
+        return "Preencheu errado, chefe! Tentar entrar aqui com a senha incorreta é igual tentar segurar diarreia com a força do pensamento: não rola, e o final é sempre humilhante. Concentra aí e digita direito antes que vaze!";
       case 404:
         return "A clássica cagada fantasma! Eu juro que ouvi o barulho da água batendo, senti o clima no ar, mas quando olhei pro banco de dados... cadê o seu username? Sumiu na curva d'água! Você não existe aqui. Vá para a tela de Cadastro e tome forma física!";
       case 409:
