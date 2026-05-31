@@ -35,65 +35,84 @@ const statusMessages: Record<
   { title: string; message: string; emoji: string; imageUrl: string }
 > = {
   400: {
-    title: "Cagada Mal Informada",
-    message: "A requisição está com problema, como uma descarga entupida.",
-    emoji: "🚽💩",
-    imageUrl: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
+    title: "💩 CAGADA MAL INFORMADA 💩",
+    message:
+      "Sua requisição está tão confusa quanto papel higiênico molhado. O servidor não entendeu nada, nem eu. Revisa esses dados, criatura!",
+    emoji: "🚽💩🤯",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHlwdWt3ZGVpdDF2bzRsajh1MmI5ODBuMTVkdHgzMjk2ejFmenpxZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/6MKRbRtrKiDaT29CJV/giphy.gif",
   },
   401: {
-    title: "Vc Não Fez o Número 2",
-    message: "Autenticação necessária. Faça login antes de continuar.",
-    emoji: "🔐💩",
-    imageUrl: "https://media.giphy.com/media/3o7abB06u9bNzA8LC8/giphy.gif",
+    title: "🔐 VOCÊ NÃO FEZ O NÚMERO 2 🔐",
+    message:
+      "Calma, calabreso! Você não está logado. Como vai cagar de luxo sem identificação? Faz o login antes de tentar sentar no trono VIP.",
+    emoji: "🔐💩🧻",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHlwdWt3ZGVpdDF2bzRsajh1MmI5ODBuMTVkdHgzMjk2ejFmenpxZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/tRDsicNAWnLHO/giphy.gif",
   },
   403: {
-    title: "Cagada Proibida",
-    message: "Você não tem permissão para cagar aqui.",
-    emoji: "🚫🧻",
-    imageUrl: "https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif",
+    title: "🚫 CAGADA PROIBIDA 🚫",
+    message:
+      "Nem ousa! Você não tem permissão para cagar aqui. É área restrita, só para os fortes. Volta pra sua privada comum, plebeu.",
+    emoji: "🚫🧻👑",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ZWN4a3NqMWh0eGM4aThyeWZlcXB1czJ1Z2NhbGhhc2Rjczdwc2kyZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/lz97hLzvhgL0hVni2H/giphy.gif",
   },
   404: {
-    title: "Cagada Não Encontrada",
+    title: "💨 CAGADA FANTASMA 💨",
     message:
-      "A página que você procura evaporou no ar. Talvez alguém tenha dado descarga.",
-    emoji: "💨🚽",
-    imageUrl: "https://media.giphy.com/media/3o7abKhOpu0N9H8lXm/giphy.gif",
+      "A página que você procura evaporou no ar, igual peido depois do almoço. Alguém deu descarga e levou tudo embora. Tenta de novo, se tiver coragem.",
+    emoji: "💨🚽👻",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3OW92MTg0NGlkNzl2NTM4MHBybnJvcXR6YnIyYzZtampkYnhhMzhubSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/UOgF1gfbgO7NS/giphy.gif",
   },
   408: {
-    title: "Cagada Demorou Demais",
-    message: "O servidor cansou de esperar sua cagada. Time-out!",
-    emoji: "⏰💩",
-    imageUrl: "https://media.giphy.com/media/3o6Zt6MLxBgY8oYviE/giphy.gif",
+    title: "⏰ A CAGADA DEMOROU DEMAIS ⏰",
+    message:
+      "O servidor ficou esperando, esperando... e nada. Deu até câimbra no cano. Time‑out! Seu cocô digital não resistiu à ansiedade.",
+    emoji: "⏰💩😫",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3OW92MTg0NGlkNzl2NTM4MHBybnJvcXR6YnIyYzZtampkYnhhMzhubSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/mQnOJCzWZtKr7j4oyD/giphy.gif",
   },
   429: {
-    title: "Muitas Cagadas",
-    message: "Você está cagando demais! Dê um tempo pro vaso respirar.",
-    emoji: "🔄🚽",
-    imageUrl: "https://media.giphy.com/media/3o7abKhOpu0N9H8lXm/giphy.gif",
+    title: "🔄 MUITAS CAGADAS, MEU FILHO 🔄",
+    message:
+      "Você está cagando mais do que o sistema aguenta! Dá um tempo pro vaso respirar, senão vai entupir o servidor inteiro. Respeita o limite dos canos.",
+    emoji: "🔄🚽💢",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ZGtqdWw3d2hjaHQwYzQ1eHRtZHBhM2ZraWJzdGx4M3dwYnNlNXc1YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ocqQDjdhv3Fm6Bq5jO/giphy.gif",
   },
   500: {
-    title: "Cagada no Servidor",
-    message: "O servidor fez cocô nas calças. Tente novamente mais tarde.",
-    emoji: "💻💩",
-    imageUrl: "https://media.giphy.com/media/3o7aCTPPB4Hx6FpHna/giphy.gif",
+    title: "💻 CAGADA NO SERVIDOR 💻",
+    message:
+      "O servidor fez cocô nas calças, literalmente. Um erro interno catastrófico. Não é culpa sua, é o backend que se borrou todo. Tenta de novo mais tarde (e reza).",
+    emoji: "💻💩🔥",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDU5cXNkYmU3NWp3NmZ6ZDJ3bW1vbGI4OTUwZXBpOHR3YTZwbzVrbSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/NXaN3vzOd5vbO/giphy.gif",
   },
   502: {
-    title: "Cagada na Rede",
-    message: "A conexão falhou. Alguém entupiu o cano da internet.",
-    emoji: "🌐💩",
-    imageUrl: "https://media.giphy.com/media/3o7abKhOpu0N9H8lXm/giphy.gif",
+    title: "🌐 CAGADA NA REDE 🌐",
+    message:
+      "A conexão falhou feio. Alguém entupiu o cano da internet com um barro monstruoso. O gateway não aguentou e bateu em retirada. Chama o provedor, amigo.",
+    emoji: "🌐💩💥",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDU5cXNkYmU3NWp3NmZ6ZDJ3bW1vbGI4OTUwZXBpOHR3YTZwbzVrbSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/9rjYBGxaLsKKycVUxV/giphy.gif",
   },
   503: {
-    title: "Vaso em Manutenção",
-    message: "O serviço está indisponível. O encanador foi chamado.",
-    emoji: "🔧🚽",
-    imageUrl: "https://media.giphy.com/media/3o6Zt6MLxBgY8oYviE/giphy.gif",
+    title: "🔧 VASO EM MANUTENÇÃO 🔧",
+    message:
+      "O serviço está indisponível. O encanador foi chamado, mas ele tá almoçando. Volta daqui a pouco, quando o trono estiver desentupido.",
+    emoji: "🔧🚽🛠️",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ZGtqdWw3d2hjaHQwYzQ1eHRtZHBhM2ZraWJzdGx4M3dwYnNlNXc1YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ocqQDjdhv3Fm6Bq5jO/giphy.gif",
   },
   504: {
-    title: "Cagada Perdida",
-    message: "O gateway não conseguiu conectar. Sua cagada se perdeu no limbo.",
-    emoji: "🌀💩",
-    imageUrl: "https://media.giphy.com/media/3o7abKhOpu0N9H8lXm/giphy.gif",
+    title: "🌀 CAGADA PERDIDA NO LIMBO 🌀",
+    message:
+      "O gateway não conseguiu conectar. Sua cagada entrou em um portal interdimensional e se perdeu no além. Nem Freud explica. Tenta de novo, se o destino permitir.",
+    emoji: "🌀💩🌌",
+    imageUrl:
+      "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cDU5cXNkYmU3NWp3NmZ6ZDJ3bW1vbGI4OTUwZXBpOHR3YTZwbzVrbSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/NXaN3vzOd5vbO/giphy.gif",
   },
 };
 
