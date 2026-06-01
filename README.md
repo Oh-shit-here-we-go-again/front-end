@@ -1,6 +1,4 @@
-.
-
-# Cagada Remunerada — Front-end
+.# Cagada Remunerada — Front-end
 
 > Interface do sistema que prova, em pixels, que você está sendo pago para cagar.
 
